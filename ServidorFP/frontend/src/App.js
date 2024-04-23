@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import AddIdiom from "./components/AddIdiom";
+import Idioms from "./components/Idioms";
 import AddStudent from "./components/AddStudent";
 import GetAllStudents from "./components/GetAllStudents";
 
@@ -8,7 +8,7 @@ function App() {
     <div className="app">
       <BrowserRouter>
         <Routes>
-          <Route path="/addIdiom" element={<AddIdiom/>} />
+          <Route path="/idioms" element={<Idioms/>} />
           <Route path="/addStudent" element={<AddStudent/>} />
           <Route path="/getAllStudents" element={<GetAllStudents/>} />
         </Routes>
