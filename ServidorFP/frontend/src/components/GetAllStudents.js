@@ -25,6 +25,10 @@ function GetAllStudentsComponent() {
           <p>{item.sexo}</p>
           <p>{item.dni}</p>
           <p>{item.fechanacimiento}</p>
+          <p>{item.opcion1}</p>
+          <p>{item.opcion2}</p>
+          <p>{item.opcion3}</p>
+          <p>{item.fecha}</p>
           <p>{item.estadocurriculum}</p>
           <p>{item.estadoadmision}</p>
           <p>{item.emailinstituto}</p>
@@ -41,6 +45,10 @@ function GetAllStudentsComponent() {
           <p>{item.email}</p>
           <p>{item.observaciones}</p>
           <p>{item.mesFCT}</p>
+          <p>{item.anyocursado}</p>
+          <p>{item.domicilio}</p>
+          <p>{item.cp}</p>
+          <p>{item.localidad}</p>
         </div>
       ))}
     </div>

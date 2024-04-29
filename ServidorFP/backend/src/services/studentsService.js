@@ -11,18 +11,17 @@ exports.getAllStudents = function (request, response) {
 };
 // AÑADIR AÑADIR ALUMNO
 exports.addStudent = function (request, response) {
-    const { nombre, sexo, dni, fechanacimiento, estadocurriculum, estadoadmision, emailinstituto,
+    const { nombre, sexo, dni, fechanacimiento, opcion1, opcion2, opcion3, fecha, estadocurriculum, estadoadmision, emailinstituto,
         nacionalidad, carnetconducir, disponibilidad, numeroSS, situacionlaboral, nombretutorlegal,
-        dnitutorlegal, especialidad, telalumno, telfamilia, email, observaciones, mesFCT } = request.body;
-
-    connection.query("INSERT INTO gf_alumnosfct (nombre, sexo, dni, fechanacimiento, estadocurriculum, " +
+        dnitutorlegal, especialidad, telalumno, telfamilia, email, observaciones, mesFCT, anyocursado,domicilio,cp,localidad } = request.body;
+    connection.query("INSERT INTO gf_alumnosfct (nombre, sexo, dni, fechanacimiento, opcion1, opcion2, opcion3, fecha, estadocurriculum, " +
                      "estadoadmision, emailinstituto, nacionalidad, carnetconducir, disponibilidad, numeroSS, " +
                      "situacionlaboral, nombretutorlegal, dnitutorlegal, especialidad, telalumno, telfamilia, " +
-                     "email, observaciones, mesFCT,domicilio, cp, localidad, idempresa, iddomicilio, idrepresentante, idtutorempresa)"+
-                     " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,0,0,0,0,0,0,0)",
-        [nombre, sexo, dni, fechanacimiento, estadocurriculum, estadoadmision, emailinstituto,
+                     "email, observaciones, mesFCT,anyocursado, domicilio, cp, localidad, idempresa, iddomicilio, idrepresentante, idtutorempresa)"+
+                     " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,0,0,0,0)",
+        [nombre, sexo, dni, fechanacimiento, opcion1, opcion2, opcion3, fecha, estadocurriculum, estadoadmision, emailinstituto,
         nacionalidad, carnetconducir, disponibilidad, numeroSS, situacionlaboral, nombretutorlegal,
-        dnitutorlegal, especialidad, telalumno, telfamilia, email, observaciones, mesFCT],
+        dnitutorlegal, especialidad, telalumno, telfamilia, email, observaciones, mesFCT, anyocursado, domicilio, cp, localidad],
         (error, results) => {
             if (error) throw error;
             response.status(201).json("Item añadido correctamente");
@@ -48,19 +47,6 @@ exports.addStudent_Idiom = function (request, response) {
     );
 };
 
-// AÑADIR PREFERENCIAS AL ALUMNO
-exports.addStudent_Preferences = function (request, response) {
-    const {idalumno,opcion1,opcion2,opcion3,fecha} = request.body;
-    connection.query("INSERT INTO preferencias_alumnos(idalumno, opcion1, opcion2, opcion3, fecha) " +
-                     "VALUES (?,?,?,?,?)", 
-        [idalumno,opcion1,opcion2,opcion3,fecha],
-    (error, results) => {
-        if(error)
-            throw error;
-        response.status(200).json(results);
-    });
-};
-
 // AÑADIR DOCUMENTOS AL ALUMNO
 exports.addStudent_Doc = function (request, response) {
     const {idalumno,docalum,url} = request.body;
@@ -68,20 +54,6 @@ exports.addStudent_Doc = function (request, response) {
     connection.query("INSERT INTO doc_alumnos(idalumno, docalum, url) " +
                      "VALUES (?,?,?)", 
         [idalumno,docalum,url],
-    (error, results) => {
-        if(error)
-            throw error;
-        response.status(200).json(results);
-    });
-};
-
-// AÑADIR DOCUMENTOS AL ALUMNO
-exports.addStudent_Adress = function (request, response) {
-    const {idalumno,domicilio,cp,provincia,localidad,telefono} = request.body;
-    console.log(idalumno);
-    connection.query("INSERT INTO ge_domicilios (idempresa,idalumno,domicilio,cp,provincia,localidad,telefono,email,especialidad,correodualempresa) " +
-                     "VALUES (-1,?,?,?,?,?,?,0,0,0)", 
-        [idalumno,domicilio,cp,provincia,localidad,telefono],
     (error, results) => {
         if(error)
             throw error;
