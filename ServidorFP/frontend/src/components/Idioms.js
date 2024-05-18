@@ -37,11 +37,6 @@ function AddIdiomComponent() {
     DeleteIdiom(ididioma); // Llamar a la función AddNewRecord con el nombre y texto
     GetAllIdioms(); // Actualizar la lista de notas después de agregar una nueva
   }
-  // BUTTON ACTUALIZAR IDIOMA 
-  function ButtonClickUpdate(){
-    UpdateIdiom(ididioma,idioma); // Llamar a la función AddNewRecord con el nombre y texto
-    GetAllIdioms(); // Actualizar la lista de notas después de agregar una nueva
-  }
 
   // BUTTON NUEVO IDIOMA -- PETICION POST
   const AddNewIdiom = async (idioma) => {
@@ -63,9 +58,9 @@ function AddIdiomComponent() {
     return jsonResponse; // Devolver la respuesta JSON
   }
   // BORRAR IDIOMA -- PETICION POST
-  const DeleteIdiom = async (ididioma) => {
+  const DeleteIdiom = async (idioma) => {
     const bodyParameters = {
-      'ididioma': ididioma
+      'idioma': idioma
     }
   
     const options = {
@@ -81,65 +76,37 @@ function AddIdiomComponent() {
     console.log(JSON.stringify(jsonResponse)); // Imprimir la respuesta JSON en la consola
     return jsonResponse; // Devolver la respuesta JSON
   }
-  // ACTUALIZAR IDIOMA -- PETICION POST
-  const UpdateIdiom = async (ididioma,idioma) => {
-    const bodyParameters = {
-      'ididioma':ididioma,
-      'idioma': idioma
-    }
-  
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(bodyParameters)
-    }
-  
-    const response = await fetch("/updateIdioms", options); // Hacer una solicitud HTTP POST a '/addNote' con los datos de la nueva nota
-    const jsonResponse = await response.json(); // Convertir la respuesta a JSON
-    console.log(JSON.stringify(jsonResponse)); // Imprimir la respuesta JSON en la consola
-    return jsonResponse; // Devolver la respuesta JSON
-  }
 
   // Renderizado del componente
   return (
-    <div>
+    <div className="idioms-container">
       <h1>Insertar nuevo idioma:</h1>
-      <form>
-          <div>
-              <label htmlFor="title-input">Idioma:</label>
-              <input type="text" value={idioma} id="title-input" onChange={HandleIdiomChange} /> {/* Entrada de texto para el nombre de la nueva nota */}
-          </div>
-          <button type="button" onClick={ButtonClickAdd}>Insert</button> {/* Botón para insertar la nueva nota */}
-      </form>
-      <h1>Borrar nuevo idioma:</h1>
-      <form>
-          <div>
-              <label htmlFor="title-input">IdIdioma:</label>
-              <input type="text" value={ididioma} id="title-input" onChange={HandleIdIdiomsChange} /> {/* Entrada de texto para el nombre de la nueva nota */}
-          </div>
-          <button type="button" onClick={ButtonClickDelete}>Insert</button> {/* Botón para insertar la nueva nota */}
-      </form>
-      <h1>Actualizar nuevo idioma:</h1>
-      <form>
-          <div>
-              <label htmlFor="title-input">IdIdioma:</label>
-              <input type="text" value={ididioma} id="title-input" onChange={HandleIdIdiomsChange} /> {/* Entrada de texto para el nombre de la nueva nota */}
-          </div>
-          <div>
-              <label htmlFor="author-input">Idioma:</label>
-              <input type="text" value={idioma} id="author-input" onChange={HandleIdiomChange} /> {/* Entrada de texto para el contenido de la nueva nota */}
-          </div>
-          <button type="button" onClick={ButtonClickUpdate}>Insert</button> {/* Botón para insertar la nueva nota */}
-      </form>
-      {/* Bucle for */}
-      {data.map(item => (
-        <div key={item.id}>
-          <h2>{item.ididioma}</h2> {/* Renderizado del nombre de la nota */}
-          <p>{item.idioma}</p> {/* Renderizado del contenido de la nota */}
+      <form className="idiom-form">
+        <div>
+          <label htmlFor="title-input">Idioma:</label>
+          <input type="text" value={idioma} id="title-input" onChange={HandleIdiomChange} />
         </div>
-      ))}
+        <button type="button" onClick={ButtonClickAdd}>Insertar</button>
+      </form>
+
+      <h1>Borrar nuevo idioma:</h1>
+      <form className="idiom-form">
+        <div>
+          <label htmlFor="id-input">ID Idioma:</label>
+          <input type="text" value={ididioma} id="id-input" onChange={HandleIdIdiomsChange} />
+        </div>
+        <button type="button" onClick={ButtonClickDelete}>Borrar</button>
+      </form>
+
+      <ul className="idiom-list">
+        <h2>Idiomas actuales</h2>
+        {data.map(item => (
+          <li key={item.id}>
+            <h3>{item.ididioma}</h3>
+            <p>{item.idioma}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

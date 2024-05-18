@@ -10,7 +10,9 @@ app.use(express.urlencoded({extended:false}));
 app.use(express.json());
 
 app.use(require('./routes/idiomsRoute'));
+app.use(require('./routes/preferencesRoute'));
 app.use(require('./routes/studentsRoute'));
+app.use(require('./routes/candidatesRoute'));
 
 app.listen(app.get('port'), () => {
     console.log(`Server listening on port ${app.get('port')}`);

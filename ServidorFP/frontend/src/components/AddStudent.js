@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 
+import '../styles.css'; // Importa el archivo de estilos CSS
+
 function AddStudentComponent() {
   // Definición de estados utilizando el hook useState
   const [dataStudents, setDataStudents] = useState([]); // Estado para almacenar datos obtenidos del servidor
+  const [successMessage, setSuccessMessage] = useState(""); // Estado para almacenar el mensaje de éxito
+
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
   const [DNI, setDNI] = useState("");
   const [birthdate, setBirthdate] = useState("");
+  const [preference1, setPreference1] = useState("");
+  const [preference2, setPreference2] = useState("");
+  const [preference3, setPreference3] = useState("");
+  const [date, setDate] = useState("");
   const [curriculumStatus, setCurriculumStatus] = useState("");
   const [admissionStatus, setAddmissionStatus] = useState("");
   const [studiesEmail, setStudiesEmail] = useState("");
@@ -16,13 +24,15 @@ function AddStudentComponent() {
   const [SSnumber, setSSNumber] = useState("");
   const [employmentSituation, setEmploymentSituation] = useState("");
   const [legalGuardianName, setLegalGuardianName] = useState("");
-  const [legalGuardianDNI, setLegalGuardianDNI] = useState("");
   const [speciality, setSpeciality] = useState("");
   const [studentTelephone, setStudentTelephone] = useState("");
   const [familyTelephone, setFamilyTelephone] = useState("");
   const [email, setEmail] = useState("");
   const [observations, setObservations] = useState("");
   const [FCTmonth, setFCTMonth] = useState("");
+  const [adress, setAdress] = useState("");
+  const [CP, setCP] = useState("");
+  const [location, setLocation] = useState("");
   //Variables necesarias para poder usar /addStudent_Idiom
   const [dataIdioms, setDataIdioms] = useState([]);
   const [idiomaalumno, setIdiomaAlumno] = useState("");
@@ -30,19 +40,13 @@ function AddStudentComponent() {
   const [studentId, setStudentId] = useState("");
   const [degree, setDegree] = useState("");
   //Variables necesarias para poder usar /addStudentPreferences
-  const [option1, setOption1] = useState("");
-  const [option2, setOption2] = useState("");
-  const [option3, setOption3] = useState("");
-  const [date, setDate] = useState("");
+  const [dataPreferences, setDataPreferences] = useState([]);
+  let idPreference1;
+  let idPreference2;
+  let idPreference3;
   //Variables necesariasa para poder usar /addStudent_Doc
   const [studentDocument, setStudentDocument] = useState("");
   const [URL, setURL] = useState("");
-  //Variables necesarias para poder usar /addStudent_Adress
-  const [adress, setAdress] = useState("");
-  const [CP, setCP] = useState("");
-  const [province, setProvince] = useState("");
-  const [location, setLocation] = useState("");
-  const [telephone, setTelephone] = useState("");
    //Variables necesarias para poder usar /addStudent_Calification
    const [averageGrade, setAverageGrade] = useState("");
    const [idiomGrade, setIdiomGrade] = useState("");
@@ -52,14 +56,32 @@ function AddStudentComponent() {
    const [failuresGrade, setFailuresGrade] = useState("");
    const [globalGrade, setGlobalGrade] = useState("");
    const [observations2, setObservations2] = useState("");
+   const [currentYear, setCurrentYear] = useState("");
 
    const [document, setDocument] = useState("");
+
+    // -------------------------------------------------------------------------------------------- PREFERENCIAS
+    // Esta función recibe tres preferencias y devuelve un array con los idpreferencia correspondientes a cada una.
+    function getIdPreference(preference1, preference2, preference3) {
+    
+      for (let i = 0; i < dataPreferences.length; i++) {
+        if (dataPreferences[i].preferencia === preference1) {
+         idPreference1 = dataPreferences[i].idpreferencia;
+        }
+        if (dataPreferences[i].preferencia === preference2) {
+         idPreference2 = dataPreferences[i].idpreferencia;
+        }
+        if (dataPreferences[i].preferencia === preference3) {
+         idPreference3 = dataPreferences[i].idpreferencia;
+        }
+      }
+    }
    
-  
  // ----------------------------------------------------------------   USE EFFECTS
   useEffect(() => {
     GetAllIdioms(); 
     GetAllStudents();
+    GetAllPreferences();
   }, []);
 
   // -----------------------------------------------------------------   GET ALLS
@@ -74,6 +96,20 @@ function AddStudentComponent() {
       })
       .catch(error => {
         console.error('Error fetching idioms data:', error);
+        // Manejar errores de la solicitud
+      });
+  }
+  // 
+  // Recoge todos los datos de la tabla preferencias y los guarda en dataPreferences
+  function GetAllPreferences() {
+    fetch('/getAllPreferences') // Hacer una solicitud HTTP GET a '/getAllPreferences'
+      .then(response => response.json()) // Convertir la respuesta a JSON
+      .then(dataPreferences => {
+        setDataPreferences(dataPreferences); // Establecer los datos obtenidos en el estado 'data2'
+        console.log(dataPreferences); // Mostrar el contenido en la consola
+      })
+      .catch(error => {
+        console.error('Error fetching preferences data:', error);
         // Manejar errores de la solicitud
       });
   }
@@ -157,59 +193,22 @@ function HandleGlobalGradeChange(event){
 function HandleObservations2Change(event){
   setObservations2(event.target.value);
 }
-  // ----------------------------------------------------------------  ESTUDIANTES_PREFERENCIAS
-  const AddNewStudent_Preferences = async (studentId,option1,option2,option3,date) => {
-    try {
-      const bodyParameters = {
-        'idalumno': studentId,
-        'opcion1':  option1,
-        'opcion2': option2,
-        'opcion3': option3,
-        'fecha': date
-      }
-      const options = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(bodyParameters)
-      }
-      const response = await fetch("/addStudent_Preferences", options);
-      if (!response.ok) {
-        throw new Error('Error '); 
-      }
-      const jsonResponse = await response.json();
-      console.log(JSON.stringify(jsonResponse));
-      return jsonResponse;
-    } catch (error) {
-      console.error('Error:', error.message);
-    }
-  }
 
-  //FUNCTIONS PREFERENCIAS_ESTUDIANTES
-  function HandleOption1Change(event){
-    setOption1(event.target.value);
-  }
-  function HandleOption2Change(event){
-    setOption2(event.target.value);
-  }
-  function HandleOption3Change(event){
-    setOption3(event.target.value);
-  }
-  function HandleDateChange(event){
-    setDate(event.target.value);
-  }
   //----------------------------------------------------------------  ESTUDIANTES (ALUMNOS)
     
-  const AddNewStudent = async (name, gender, DNI, birthdate, curriculumStatus, admissionStatus, studiesEmail,
+  const AddNewStudent = async (name, gender, DNI, birthdate,idPreference1, idPreference2, idPreference3, date, curriculumStatus, admissionStatus, studiesEmail,
                               nationality, drivingLicense, availability, SSnumber, employmentSituation, legalGuardianName,
-                              legalGuardianDNI, speciality, studentTelephone, familyTelephone, email, observations, FCTmonth) => {
+                              speciality, studentTelephone, familyTelephone, email, observations, FCTmonth, currentYear, adress, CP, location) => {
         try {
           const bodyParameters = {
             'nombre': name,
             'sexo': gender,
             'dni': DNI,
             'fechanacimiento': birthdate,
+            'idpreferencia1': idPreference1,
+            'idpreferencia2': idPreference2,
+            'idpreferencia3': idPreference3,
+            'fecha': date,
             'estadocurriculum': curriculumStatus,
             'estadoadmision': admissionStatus,
             'emailinstituto': studiesEmail,
@@ -219,13 +218,16 @@ function HandleObservations2Change(event){
             'numeroSS': SSnumber,
             'situacionlaboral': employmentSituation,
             'nombretutorlegal': legalGuardianName,
-            'danitutorlegal': legalGuardianDNI,
             'especialidad': speciality,
             'telalumno': studentTelephone,
             'telfamilia': familyTelephone,
             'email': email,
             'observaciones': observations,
-            'mesFCT': FCTmonth
+            'mesFCT': FCTmonth,
+            'anyocursado': currentYear,
+            'domicilio':adress,
+            'cp': CP,
+            'localidad': location
           }
       
           const options = {
@@ -262,7 +264,23 @@ function HandleObservations2Change(event){
       function HandleBirthdateChange(event) {
           setBirthdate(event.target.value);
       }
-    
+
+      function HandlePreference1Change(event){
+        setPreference1(event.target.value);
+      }
+      
+      function HandlePreference2Change(event){
+        setPreference2(event.target.value);
+      }
+      
+      function HandlePreference3Change(event){
+        setPreference3(event.target.value);
+      }
+
+      function HandleDateChange(event){
+        setDate(event.target.value);
+      }
+
       function HandleCurriculumStatusChange(event) {
           setCurriculumStatus(event.target.value);
       }
@@ -299,10 +317,6 @@ function HandleObservations2Change(event){
           setLegalGuardianName(event.target.value);
       }
     
-      function HandleLegalGuardianDNIChange(event) {
-          setLegalGuardianDNI(event.target.value);
-      }
-    
       function HandleSpecialityChange(event) {
           setSpeciality(event.target.value);
       }
@@ -327,20 +341,35 @@ function HandleObservations2Change(event){
           setFCTMonth(event.target.value);
       }
 
+      function HandleCurrentYearChange(event) {
+        setCurrentYear(event.target.value);
+      }
+
+      const HandleAdressChange= (event) => {
+        setAdress(event.target.value);
+      };
+  
+      const HandleCPChange = (event) => {
+        setCP(event.target.value);
+      };
+
+      const HandleLocationChange = (event) => {
+        setLocation(event.target.value);
+      };
   // --------------------------------------------------------------------------  EJECUCIONES
   function ButtonClickAddStudent(){
-    AddNewStudent(name, gender, DNI, birthdate, curriculumStatus, admissionStatus, studiesEmail,
+    getIdPreference (preference1, preference2, preference3);
+    AddNewStudent(name, gender, DNI, birthdate, idPreference1, idPreference2, idPreference3, date, curriculumStatus, admissionStatus, studiesEmail,
                   nationality, drivingLicense, availability, SSnumber, employmentSituation, legalGuardianName,
-                  legalGuardianDNI, speciality, studentTelephone, familyTelephone, email, observations, FCTmonth); 
-    AddNewStudent_Preferences(studentId, option1, option2, option3, date);
+                  speciality, studentTelephone, familyTelephone, email, observations, FCTmonth, currentYear, adress, CP, location); 
     AddNewStudent_Calification (studentId, averageGrade, idiomGrade, maturityGrade, competentGrade, failuresNumber, failuresGrade, globalGrade, observations2);
     // Como el idalumno para idiomas y docs es el anterior al nuevo alumno añadidio,
     // ajusto con esta funcion para sumar +1 al id antior y que la variable idalumno ahora valga
     // lo que la nueva idalumno del alumno nuevo.
     AddStudent_Idioms(dataIdioms,studentId,idioms,degrees);
     AddStudent_Documents(studentId,documents,urls);
-    AddStudent_Adresses (studentId,adressParametters);
     IncrementStudentId(studentId);
+    setSuccessMessage("La petición se ha añadido correctamente.");
   }
 
   function AddStudent_Idioms() {
@@ -426,47 +455,6 @@ function HandleObservations2Change(event){
             });
     }
   }
-  function AddStudent_Adresses() {
-    // Iterar sobre los arrays idiomas y titulos para enviar cada par de datos
-    for (let i = 0; i < adressParametters.length; i++) {
-        // Crear un objeto con los datos del nuevo documento en cada iteración
-        const bodyParameters = {
-            idalumno: studentId,
-            domicilio: adressParametters[i].adress,
-            cp: adressParametters[i].cp,
-            provincia: adressParametters[i].province,
-            localidad: adressParametters[i].location,
-            telefono: adressParametters[i].telephone
-        };
-        console.log(bodyParameters);
-        // Configurar las opciones para la solicitud fetch
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(bodyParameters) // Convertir el objeto a JSON
-        };
-
-        // Realizar la solicitud fetch al servidor para cada par de datos
-        fetch('/addStudent_Adress', options)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error al insertar direccion');
-                }
-                return response.json();
-            })
-            .then(jsonResponse => {
-                // Manejar la respuesta del servidor si es necesario
-                console.log(jsonResponse);
-                // Aquí puedes realizar alguna acción adicional si la inserción fue exitosa
-            })
-            .catch(error => {
-                console.error('Error al insertar direccion:', error);
-                // Aquí puedes mostrar un mensaje de error al usuario si la inserción falla
-            });
-    }
-  }
    //--------------------------------------------------------------------------------------   IDIOMAS
     // Definimos un estado llamado 'nombres' usando el hook useState.
     // Inicializamos el estado con un array que contiene un string vacío.
@@ -519,214 +507,195 @@ function HandleObservations2Change(event){
       setDocuments([...documents, '']);
       setUrls([...urls, '']);
     };
-    //---------------------------------------------------------------------------------------------- DOMICILIOS
-    const [adressParametters, setAdressParametters] = useState([{adress: '', cp: '', province: '',location: '', telephone: ''}])
-    
-    const handleAdressChange = (index, value) => {
-      const newAdressParametters = [...adressParametters];
-      newAdressParametters[index].adress = value;
-      setAdressParametters(newAdressParametters);
-    };
 
-    const handleCpChange = (index, value) => {
-      const newAdressParametters = [...adressParametters];
-      newAdressParametters[index].cp = value;
-      setAdressParametters(newAdressParametters);
-    };
-    const handleProvinceChange = (index, value) => {
-      const newAdressParametters = [...adressParametters];
-      newAdressParametters[index].province = value;
-      setAdressParametters(newAdressParametters);
-    };
-
-    const handleLocationChange = (index, value) => {
-      const newAdressParametters = [...adressParametters];
-      newAdressParametters[index].location = value;
-      setAdressParametters(newAdressParametters);
-    };
-
-    const handleTelephoneChange = (index, value) => {
-      const newAdressParametters = [...adressParametters];
-      newAdressParametters[index].telephone = value;
-      setAdressParametters(newAdressParametters);
-    };
-
-    const addAdressInput = () => {
-      setAdressParametters([...adressParametters, {adress: '', cp: '', province: '', location: '', telephone: ''}]);
-    };
-    
-  
   // Renderizado del componente ------------------------------------------------  HTML
   return (
-    <div>
-      <form>
-          <h4>AÑADIR ALUMNO:</h4>
-          <div>
-              <label htmlFor="title-input">Fecha hoy:</label>
-              <input type="text" value={date} id="title-input" onChange={HandleDateChange} />
+    <div clasdName="input-field">
+      <form className="section">
+        <h4 className="tittle">AÑADIR ALUMNO:</h4>
+          <div className="input-field">
+            <label htmlFor="date-input">Fecha hoy:</label>
+            <input type="text" value={date} id="date-input" onChange={HandleDateChange} />
           </div>
-          <div>
-              <label htmlFor="title-input">Primera opcion estudiante:</label>
-              <input type="text" value={option1} id="title-input" onChange={HandleOption1Change} />
+          <div className="input-field">
+            <label htmlFor="name-input">Alumno:</label>
+            <input type="text" value={name} id="name-input" onChange={HandleNameChange} />
           </div>
-          <div>
-              <label htmlFor="title-input">Segunda opcion estudiante:</label>
-              <input type="text" value={option2} id="title-input" onChange={HandleOption2Change} />
+          <div className="input-field">
+            <label htmlFor="gender-input">Sexo:</label>
+            <input type="text" value={gender} id="gender-input" onChange={HandleGenderChange} />
           </div>
-          <div>
-              <label htmlFor="title-input">Tercera opcion estudiante:</label>
-              <input type="text" value={option3} id="title-input" onChange={HandleOption3Change} />
+          <div className="input-field">
+            <label htmlFor="DNI-input">DNI:</label>
+            <input type="text" value={DNI} id="DNI-input" onChange={HandleDNIChange} />
           </div>
-          <div>
-              <label htmlFor="title-input">Alumno:</label>
-              <input type="text" value={name} id="title-input" onChange={HandleNameChange} />
+          <div className="input-field">
+            <label htmlFor="birthdate-input">Fecha de Nacimiento:</label>
+            <input type="text" value={birthdate} id="birthdate-input" onChange={HandleBirthdateChange} />
           </div>
-          <div>
-              <label htmlFor="sexo-input">Sexo:</label>
-              <input type="text" value={gender} id="sexo-input" onChange={HandleGenderChange} />
+          <div className="input-field">
+            <label>Preferencia 1:</label>
+            <select value={preference1} onChange={HandlePreference1Change}>
+              <option value="">Seleccione una preferencia</option>
+              {dataPreferences.map(preference => (
+              <option key={preference.id} value={preference.preferencia}>{preference.preferencia}</option>
+              ))}
+            </select>
           </div>
-          <div>
-              <label htmlFor="dni-input">DNI:</label>
-              <input type="text" value={DNI} id="dni-input" onChange={HandleDNIChange} />
+          <div className="input-field">
+            <label>Preferencia 2:</label>
+            <select value={preference2} onChange={HandlePreference2Change}>
+              <option value="">Seleccione una preferencia</option>
+              {dataPreferences.map(preference => (
+              <option key={preference.id} value={preference.preferencia}>{preference.preferencia}</option>
+              ))}
+            </select>
           </div>
-          <div>
-              <label htmlFor="fechanacimiento-input">Fecha de Nacimiento:</label>
-              <input type="text" value={birthdate} id="fechanacimiento-input" onChange={HandleBirthdateChange} />
+          <div className="input-field">
+            <label>Preferencia 3:</label>
+            <select value={preference3} onChange={HandlePreference3Change}>
+              <option value="">Seleccione una preferencia</option>
+              {dataPreferences.map(preference => (
+              <option key={preference.id} value={preference.preferencia}>{preference.preferencia}</option>
+              ))}
+            </select>
           </div>
-          <div>
-              <label htmlFor="estadocurriculum-input">Estado del Curriculum:</label>
-              <input type="text" value={curriculumStatus} id="estadocurriculum-input" onChange={HandleCurriculumStatusChange} />
+          <div className="input-field">
+            <label htmlFor="curriculumStatus-input">Estado del Curriculum:</label>
+            <input type="text" value={curriculumStatus} id="curriculumStatus-input" onChange={HandleCurriculumStatusChange} />
           </div>
-          <div>
-              <label htmlFor="estadoadmision-input">Estado de Admisión:</label>
-              <input type="text" value={admissionStatus} id="estadoadmision-input" onChange={HandleAdmissionStatusChange} />
+          <div className="input-field">
+            <label htmlFor="admissionStatus-input">Estado de Admisión:</label>
+            <input type="text" value={admissionStatus} id="admissionStatus-input" onChange={HandleAdmissionStatusChange} />
           </div>
-          <div>
-              <label htmlFor="emailinstituto-input">Email del Instituto:</label>
-              <input type="text" value={studiesEmail} id="emailinstituto-input" onChange={HandleStudiesEmailChange} />
+          <div className="input-field">
+            <label htmlFor="studiesEmail-input">Email del Instituto:</label>
+            <input type="text" value={studiesEmail} id="studiesEmail-input" onChange={HandleStudiesEmailChange} />
           </div>
-          <div>
-              <label htmlFor="nacionalidad-input">Nacionalidad:</label>
-              <input type="text" value={nationality} id="nacionalidad-input" onChange={HandleNationalityChange} />
+          <div className="input-field">
+            <label htmlFor="nationality-input">Nacionalidad:</label>
+            <input type="text" value={nationality} id="nationality-input" onChange={HandleNationalityChange} />
           </div>
-          <div>
-              <label htmlFor="carnetconducir-input">Carnet de Conducir:</label>
-              <input type="text" value={drivingLicense} id="carnetconducir-input" onChange={HandleDrivingLicenseChange} />
+          <div className="input-field">
+            <label htmlFor="drivingLicense-input">Carnet de Conducir:</label>
+            <input type="text" value={drivingLicense} id="drivingLicense-input" onChange={HandleDrivingLicenseChange} />
           </div>
-          <div>
-              <label htmlFor="disponibilidad-input">Disponibilidad:</label>
-              <input type="text" value={availability} id="disponibilidad-input" onChange={HandleAvailabilityChange} />
+          <div className="input-field">
+            <label htmlFor="availability-input">Disponibilidad:</label>
+            <input type="text" value={availability} id="availability-input" onChange={HandleAvailabilityChange} />
           </div>
-          <div>
-              <label htmlFor="numeroSS-input">Número de Seguridad Social:</label>
-              <input type="text" value={SSnumber} id="numeroSS-input" onChange={HandleSSNumberChange} />
+          <div className="input-field">
+            <label htmlFor="SSnumber-input">Número de Seguridad Social:</label>
+            <input type="text" value={SSnumber} id="SSnumber-input" onChange={HandleSSNumberChange} />
           </div>
-          <div>
-              <label htmlFor="situacionlaboral-input">Situación Laboral:</label>
-              <input type="text" value={employmentSituation} id="situacionlaboral-input" onChange={HandleEmploymentSituationChange} />
+          <div className="input-field">
+            <label htmlFor="employmentSituation-input">Situación Laboral:</label>
+            <input type="text" value={employmentSituation} id="employmentSituation-input" onChange={HandleEmploymentSituationChange} />
           </div>
-          <div>
-              <label htmlFor="nombretutorlegal-input">Nombre del Tutor Legal:</label>
-              <input type="text" value={legalGuardianName} id="nombretutorlegal-input" onChange={HandleLegalGuardianNameChange} />
+          <div className="input-field">
+            <label htmlFor="legalGuardianName-input">Nombre del Tutor Legal:</label>
+            <input type="text" value={legalGuardianName} id="legalGuardianName-input" onChange={HandleLegalGuardianNameChange} />
           </div>
-          <div>
-              <label htmlFor="dnitutorlegal-input">DNI del Tutor Legal:</label>
-              <input type="text" value={legalGuardianDNI} id="dnitutorlegal-input" onChange={HandleLegalGuardianDNIChange} />
+          <div className="input-field">
+            <label htmlFor="speciality-input">Especialidad:</label>
+            <input type="text" value={speciality} id="speciality-input" onChange={HandleSpecialityChange} />
           </div>
-          <div>
-              <label htmlFor="especialidad-input">Especialidad:</label>
-              <input type="text" value={speciality} id="especialidad-input" onChange={HandleSpecialityChange} />
+          <div className="input-field">
+            <label htmlFor="studentTelephone-input">Teléfono del Alumno:</label>
+            <input type="text" value={studentTelephone} id="studentTelephone-input" onChange={HandleStudentTelephoneChange} />
           </div>
-          <div>
-              <label htmlFor="telalumno-input">Teléfono del Alumno:</label>
-              <input type="text" value={studentTelephone} id="telalumno-input" onChange={HandleStudentTelephoneChange} />
+          <div className="input-field">
+            <label htmlFor="familyTelephone-input">Teléfono de la Familia:</label>
+            <input type="text" value={familyTelephone} id="familyTelephone-input" onChange={HandleFamilyTelephoneChange} />
           </div>
-          <div>
-              <label htmlFor="telfamilia-input">Teléfono de la Familia:</label>
-              <input type="text" value={familyTelephone} id="telfamilia-input" onChange={HandleFamilyTelephoneChange} />
+          <div className="input-field">
+            <label htmlFor="email-input">Email personal:</label>
+            <input type="text" value={email} id="email-input" onChange={HandleEmailChange} />
           </div>
-          <div>
-              <label htmlFor="email-input">Email personal:</label>
-              <input type="text" value={email} id="email-input" onChange={HandleEmailChange} />
+          <div className="input-field">
+            <label htmlFor="observations-input">Observaciones:</label>
+            <input type="text" value={observations} id="observations-input" onChange={HandleObservationsChange} />
           </div>
-          <div>
-              <label htmlFor="observaciones-input">Observaciones:</label>
-              <input type="text" value={observations} id="observaciones-input" onChange={HandleObservationsChange} />
+          <div className="input-field">
+            <label htmlFor="FCTmonth-input">Mes FCT:</label>
+            <input type="text" value={FCTmonth} id="FCTmonth-input" onChange={HandleFCTMonthChange} />
           </div>
-          <div>
-              <label htmlFor="mesFCT-input">Mes FCT:</label>
-              <input type="text" value={FCTmonth} id="mesFCT-input" onChange={HandleFCTMonthChange} />
+          <div className="input-field">
+            <label htmlFor="currentYear-input">Curso actual:</label>
+            <input type="text" value={currentYear} id="currentYear-input" onChange={HandleCurrentYearChange} />
           </div>
-      </form>
-      <form>
-          <h4>AÑADIR VALORACIÓN:</h4>
-          <div>
-              <label htmlFor="title-input">Nota media:</label>
-              <input type="text" value={averageGrade} id="title-input" onChange={HandleAverageGradeChange} />
+          <div className="input-field">
+            <label htmlFor="adress-input">Domicilio:</label>
+            <input type="text" value={adress} id="adress-input" onChange={HandleAdressChange} />
           </div>
-          <div>
-              <label htmlFor="title-input">Nota idioma:</label>
-              <input type="text" value={idiomGrade} id="title-input" onChange={HandleIdiomGradeChange} />
+          <div className="input-field">
+            <label htmlFor="CP-input">Código Postal:</label>
+            <input type="text" value={CP} id="CP-input" onChange={HandleCPChange} />
           </div>
-          <div>
-              <label htmlFor="title-input">Nota madurez:</label>
-              <input type="text" value={maturityGrade} id="title-input" onChange={HandleMaturityGradeChange} />
-          </div>
-          <div>
-              <label htmlFor="title-input">Nota competencia:</label>
-              <input type="text" value={competentGrade} id="title-input" onChange={HandleCompetentGradeChange} />
-          </div>
-          <div>
-              <label htmlFor="title-input">Total de faltas:</label>
-              <input type="text" value={failuresNumber} id="title-input" onChange={HandleFailuresNumberChange} />
-          </div>
-          <div>
-              <label htmlFor="title-input">Notas faltas:</label>
-              <input type="text" value={failuresGrade} id="title-input" onChange={HandleFailuresGradeChange} />
-          </div>
-          <div>
-              <label htmlFor="title-input">Notas global:</label>
-              <input type="text" value={globalGrade} id="title-input" onChange={HandleGlobalGradeChange} />
-          </div>
-          <div>
-              <label htmlFor="title-input">Observaciones:</label>
-              <input type="text" value={observations2} id="title-input" onChange={HandleObservations2Change} />
+          <div className="input-field">
+            <label htmlFor="location-input">Población:</label>
+            <input type="text" value={location} id="location-input" onChange={HandleLocationChange} />
           </div>
       </form>
-      <div>
-         <h4> INSERTAR NUEVO IDIOMA: </h4>
-          {idioms.map((idiom, index) => ( 
-            <div key={index}>
-              <input type="text" value={idiom} onChange={(e) => handleIdiomsChange(index, e.target.value)}  placeholder="Idioma"/> {/* Cada campo de entrada está vinculado a su respectivo nombre en la lista */}
-              <input type="text" value={degrees[index]} onChange={(e) => handleDegreesChange(index, e.target.value)}  placeholder="Titulo"/>
-            </div>
-          ))}
-          <button onClick={addIdiomsInput}> + </button> {/* Un botón para agregar otro campo de entrada de nombre */}
+      <form className="section">
+        <h4 className="tittle">AÑADIR VALORACIÓN:</h4>
+        <div className="input-field">
+          <label htmlFor="averageGrade-input">Nota media:</label>
+          <input type="text" value={averageGrade} id="averageGrade-input" onChange={HandleAverageGradeChange} />
         </div>
-      <div>
-        <h4> INSERTAR NUEVO DOCUMENTO: </h4>
+        <div className="input-field">
+          <label htmlFor="idiomGrade-input">Nota idioma:</label>
+          <input type="text" value={idiomGrade} id="idiomGrade-input" onChange={HandleIdiomGradeChange} />
+        </div>
+        <div className="input-field">
+          <label htmlFor="maturityGrade-input">Nota madurez:</label>
+          <input type="text" value={maturityGrade} id="maturityGrade-input" onChange={HandleMaturityGradeChange} />
+        </div>
+        <div className="input-field">
+          <label htmlFor="competentGrade-input">Nota competencia:</label>
+          <input type="text" value={competentGrade} id="competentGrade-input" onChange={HandleCompetentGradeChange} />
+        </div>
+        <div className="input-field">
+          <label htmlFor="failuresNumber-input">Total de faltas:</label>
+          <input type="text" value={failuresNumber} id="failuresNumber-input" onChange={HandleFailuresNumberChange} />
+        </div>
+        <div className="input-field">
+          <label htmlFor="failuresGrade-input">Notas faltas:</label>
+          <input type="text" value={failuresGrade} id="failuresGrade-input" onChange={HandleFailuresGradeChange} />
+        </div>
+        <div className="input-field">
+          <label htmlFor="globalGrade-input">Notas global:</label>
+          <input type="text" value={globalGrade} id="globalGrade-input" onChange={HandleGlobalGradeChange} />
+        </div>
+        <div className="input-field">
+          <label htmlFor="observations2-input">Observaciones:</label>
+          <input type="text" value={observations2} id="observations2-input" onChange={HandleObservations2Change} />
+        </div>
+      </form>
+      <div className="section">
+        <h4 className="tittle"> INSERTAR NUEVO IDIOMA: </h4>
+        {idioms.map((idiom, index) => ( 
+          <div key={index}>
+            <input type="text" value={idiom} onChange={(e) => handleIdiomsChange(index, e.target.value)} className="input-field" placeholder="Idioma"/>
+            <input type="text" value={degrees[index]} onChange={(e) => handleDegreesChange(index, e.target.value)} className="input-field" placeholder="Titulo"/>
+          </div>
+        ))}
+        <button className="button" onClick={addIdiomsInput}> + </button>
+      </div>
+      <div className="section">
+        <h4 className="tittle"> INSERTAR NUEVO DOCUMENTO: </h4>
         {documents.map((document, index) => ( 
-            <div key={index}>
-              <input type="text" value={document} onChange={(e) => handleDocumentChange(index, e.target.value)}  placeholder="Documento"/> {/* Cada campo de entrada está vinculado a su respectivo nombre en la lista */}
-              <input type="text" value={urls[index]} onChange={(e) => handleUrlChange(index, e.target.value)}  placeholder="URL"/>
-            </div>
-          ))}
-          <button onClick={addDocumentsInput}> + </button> {/* Un botón para agregar otro campo de entrada de nombre */}
+          <div key={index}>
+            <input type="text" value={document} onChange={(e) => handleDocumentChange(index, e.target.value)} className="input-field" placeholder="Documento"/>
+            <input type="text" value={urls[index]} onChange={(e) => handleUrlChange(index, e.target.value)} className="input-field" placeholder="URL"/>
+          </div>
+        ))}
+        <button className="button" onClick={addDocumentsInput}> + </button>
       </div>
-      <div>
-        <h4> INSERTAR NUEVO DOMICILIO: </h4>
-        {adressParametters.map((adressParametters, index) => ( 
-            <div key={index}>
-              <input type="text" value={adressParametters.adress} onChange={(e) => handleAdressChange(index, e.target.value)}  placeholder="Dirección"/> {/* Cada campo de entrada está vinculado a su respectivo nombre en la lista */}
-              <input type="text" value={adressParametters.cp} onChange={(e) => handleCpChange(index, e.target.value)}  placeholder="CP"/>
-              <input type="text" value={adressParametters.province} onChange={(e) => handleProvinceChange(index, e.target.value)}  placeholder="Provincia"/>
-              <input type="text" value={adressParametters.location} onChange={(e) => handleLocationChange(index, e.target.value)}  placeholder="Localidad"/>
-              <input type="text" value={adressParametters.telephone} onChange={(e) => handleTelephoneChange(index, e.target.value)}  placeholder="Teléfono personal"/>
-            </div>
-          ))}
-          <button onClick={addAdressInput}> + </button> {/* Un botón para agregar otro campo de entrada de nombre */}
+      <button className="addStudentButton" type="button" onClick={ButtonClickAddStudent}> AÑADIR ALUMNO </button>
+      <div className="success-message">
+        {successMessage && <p>{successMessage}</p>}
       </div>
-      <button type="button" onClick={ButtonClickAddStudent}> AÑADIR ALUMNO </button> {/* Botón para insertar nuevo alumno */}
     </div>
   );
 }
