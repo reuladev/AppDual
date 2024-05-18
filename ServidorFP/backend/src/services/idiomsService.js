@@ -23,24 +23,20 @@ exports.addIdioms = function (request, response) {
 };
 //BORRAR IDIOMAS
 exports.deleteIdioms = function (request,response){
-    const ididioma = request.body.ididioma;
-    connection.query("DELETE FROM idiomas WHERE ididioma = ?",
-        [ididioma],
-        (error, results) => {
-            if(error) throw error;
-            response.status(200).json("Item borrado correctamente");
-        }
-    );
-};
-//ACTUALIZAR IDIOMAS
-exports.updateIdioms = function (request,response){
-    const ididioma = request.body.ididioma;
     const idioma = request.body.idioma;
-    connection.query("UPDATE idiomas SET idioma = ? WHERE ididioma = ?",
-        [idioma,ididioma],
-        (error, results) => {
-            if(error) throw error;
-            response.status(200).json("Item actualizado correctamente");
-        }
-    );
+    console.log("Valor de idioma: " + idioma);
+    
+    // Desactivar verificación de clave externa
+    connection.query("SET FOREIGN_KEY_CHECKS = 0;");
+    
+    // Eliminar preferencias basadas en la preferencia proporcionada
+    connection.query("WITH temporal AS (SELECT ididioma FROM idiomas WHERE idioma = ?) " +
+                     "DELETE FROM idiomas WHERE ididioma = (SELECT * FROM temporal);",
+                     [idioma]);
+
+    // Reactivar verificación de clave externa
+    connection.query("SET FOREIGN_KEY_CHECKS = 1;");
+    
+    // Todo se ejecutó correctamente, enviar respuesta
+    response.status(200).json("Item borrado correctamente");
 };

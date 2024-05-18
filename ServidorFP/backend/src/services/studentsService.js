@@ -1,27 +1,179 @@
 const { connection } = require("../db/config");
 
+// LISTAR ALUMNOS SEGUN SU NOMBRE CON LIKE
+exports.getStudentDataByName = function (request, response) {
+    const {nombre} = request.body;
+    console.log(nombre);
+    connection.query("SELECT * FROM gf_alumnosfct WHERE nombre LIKE ?", 
+    ['%' + nombre + '%'],
+    (error, results) => {
+        if (error)
+            throw error;
+        response.status(200).json(results);
+    });
+};
+
+// LISTAR ALUMNOS SEGUN SU IDALUMNO
+exports.getStudentDataById = function (request, response) {
+    const {idalumno} = request.body;
+    console.log(idalumno);
+    connection.query("SELECT * FROM gf_alumnosfct WHERE idalumno = ?", 
+    [idalumno],
+    (error, results) => {
+        if (error)
+            throw error;
+        response.status(200).json(results);
+    });
+};
+
+// OBTENER TODOS LOS DOCS DE UN ALUMNO POR SU ID
+exports.getStudentDocs = function (request, response) {
+    const {idalumno} = request.body;
+    connection.query(
+        "SELECT DISTINCT * " + 
+        "FROM doc_alumnos " +
+        "WHERE idalumno = ?",
+        [idalumno],
+        (error, results) => {
+            if (error) {
+                console.error("Error en la consulta SQL:", error);
+                response.status(500).json({ error: "Error interno del servidor" });
+                return;
+            }
+            response.status(200).json(results);
+        }
+    );
+};
+
+// OBTENER VALORACION DE UN ALUMNO POR SU ID
+exports.getStudentCalification = function (request, response) {
+    const {idalumno} = request.body;
+    connection.query(
+        "SELECT DISTINCT * " + 
+        "FROM valoraciones " +
+        "WHERE idalumno = ?",
+        [idalumno],
+        (error, results) => {
+            if (error) {
+                console.error("Error en la consulta SQL:", error);
+                response.status(500).json({ error: "Error interno del servidor" });
+                return;
+            }
+            response.status(200).json(results);
+        }
+    );
+};
+
+// OBTENER IDIOMAS Y TITULOS DE ALUMNO POR IDALUMNO
+exports.getStudentIdioms = function (request, response) {
+    const { idalumno } = request.body;
+    console.log(idalumno);
+    connection.query(
+        `SELECT DISTINCT id.idalumno, i.idioma, id.titulo 
+        FROM idiomas_alumnos id
+        INNER JOIN idiomas i ON i.ididioma = id.ididioma
+        WHERE id.idalumno = ?`,
+        [idalumno],
+        (error, results) => {
+            if (error) {
+                console.error("Error en la consulta SQL:", error);
+                response.status(500).json({ error: "Error interno del servidor" });
+                return;
+            }
+            response.status(200).json(results);
+        }
+    );
+};
+
+// OBTENER PREFERENCIAS POR IDALUMNO
+exports.getStudentPreference1 = function (request, response) {
+    const { idalumno } = request.body;
+    console.log(idalumno);
+    connection.query(
+        `SELECT p.preferencia
+        FROM gf_alumnosfct al
+        INNER JOIN preferencias p ON p.idpreferencia = al.preferencia1
+        WHERE al.idalumno = ?`,
+        [idalumno],
+        (error, results) => {
+            if (error) {
+                console.error("Error en la consulta SQL:", error);
+                response.status(500).json({ error: "Error interno del servidor" });
+                return;
+            }
+            response.status(200).json(results);
+        }
+    );
+};
+
+exports.getStudentPreference2 = function (request, response) {
+    const { idalumno } = request.body;
+    console.log(idalumno);
+    connection.query(
+        `SELECT p2.preferencia
+        FROM gf_alumnosfct al
+        INNER JOIN preferencias p2 ON p2.idpreferencia = al.preferencia2
+        WHERE al.idalumno = ?`,
+        [idalumno],
+        (error, results) => {
+            if (error) {
+                console.error("Error en la consulta SQL:", error);
+                response.status(500).json({ error: "Error interno del servidor" });
+                return;
+            }
+            response.status(200).json(results);
+        }
+    );
+};
+
+exports.getStudentPreference3 = function (request, response) {
+    const { idalumno } = request.body;
+    console.log(idalumno);
+    connection.query(
+        `SELECT p3.preferencia 
+        FROM gf_alumnosfct al
+        INNER JOIN preferencias p3 ON p3.idpreferencia = al.preferencia3
+        WHERE al.idalumno = ?`,
+        [idalumno],
+        (error, results) => {
+            if (error) {
+                console.error("Error en la consulta SQL:", error);
+                response.status(500).json({ error: "Error interno del servidor" });
+                return;
+            }
+            response.status(200).json(results);
+        }
+    );
+};
+
+
+
 // LISTAR ALUMNOS
 exports.getAllStudents = function (request, response) {
     connection.query("SELECT * FROM gf_alumnosfct", 
     (error, results) => {
-        if(error)
+        if (error)
             throw error;
         response.status(200).json(results);
     });
 };
 // AÑADIR AÑADIR ALUMNO
 exports.addStudent = function (request, response) {
-    const { nombre, sexo, dni, fechanacimiento, opcion1, opcion2, opcion3, fecha, estadocurriculum, estadoadmision, emailinstituto,
+    const { nombre, sexo, dni, fechanacimiento, idpreferencia1, idpreferencia2, idpreferencia3, fecha, estadocurriculum, estadoadmision, emailinstituto,
         nacionalidad, carnetconducir, disponibilidad, numeroSS, situacionlaboral, nombretutorlegal,
-        dnitutorlegal, especialidad, telalumno, telfamilia, email, observaciones, mesFCT, anyocursado,domicilio,cp,localidad } = request.body;
-    connection.query("INSERT INTO gf_alumnosfct (nombre, sexo, dni, fechanacimiento, opcion1, opcion2, opcion3, fecha, estadocurriculum, " +
+        anyocursado,especialidad, telalumno, telfamilia, email, observaciones, mesFCT,domicilio,cp,localidad } = request.body;
+        console.log("idpreferencia1: " + request.body.idpreferencia1);
+        console.log("idpreferencia2: " + request.body.idpreferencia2);
+        console.log("idpreferencia3: " + request.body.idpreferencia3);
+
+    connection.query("INSERT INTO gf_alumnosfct (nombre, sexo, dni, fechanacimiento, preferencia1, preferencia2, preferencia3, fecha, estadocurriculum, " +
                      "estadoadmision, emailinstituto, nacionalidad, carnetconducir, disponibilidad, numeroSS, " +
-                     "situacionlaboral, nombretutorlegal, dnitutorlegal, especialidad, telalumno, telfamilia, " +
-                     "email, observaciones, mesFCT,anyocursado, domicilio, cp, localidad, idempresa, iddomicilio, idrepresentante, idtutorempresa)"+
-                     " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,0,0,0,0)",
-        [nombre, sexo, dni, fechanacimiento, opcion1, opcion2, opcion3, fecha, estadocurriculum, estadoadmision, emailinstituto,
+                     "situacionlaboral, nombretutorlegal,anyocursado, especialidad, telalumno, telfamilia, " +
+                     "email, observaciones, mesFCT, domicilio, cp, localidad, idempresa, iddomicilio, idrepresentante, idtutorempresa)"+
+                     " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)",
+        [nombre, sexo, dni, fechanacimiento, idpreferencia1, idpreferencia2, idpreferencia3, fecha, estadocurriculum, estadoadmision, emailinstituto,
         nacionalidad, carnetconducir, disponibilidad, numeroSS, situacionlaboral, nombretutorlegal,
-        dnitutorlegal, especialidad, telalumno, telfamilia, email, observaciones, mesFCT, anyocursado, domicilio, cp, localidad],
+        anyocursado, especialidad, telalumno, telfamilia, email, observaciones, mesFCT, domicilio, cp, localidad],
         (error, results) => {
             if (error) throw error;
             response.status(201).json("Item añadido correctamente");
@@ -31,9 +183,6 @@ exports.addStudent = function (request, response) {
 // AÑADIR IDIOMAS AL ALUMNO
 exports.addStudent_Idiom = function (request, response) {
     const {idalumno, ididioma, titulo} = request.body;
-    console.log('idAlumno en BACKEND: ' + idalumno);
-    console.log('idIdioma en BACKEND: ' + ididioma)
-    console.log('titulo en BACKEND: ' + titulo);
     connection.query(
         "INSERT INTO idiomas_alumnos (idalumno, ididioma, titulo) VALUES (?,?,?)",
         [idalumno, ididioma, titulo],
@@ -76,3 +225,98 @@ exports.addStudent_Calification = function (request, response) {
     });
 };
 
+// ------------------------------------------------------------------------------------- UPDATES
+
+/*                  **** HACER UN UPDATE POR CADA TABLA */
+
+
+
+// OBTENER TODOS LOS DATOS DE ALUMNO POR SU NOMBRE Y DNI
+exports.getStudentDates = function (request, response) {
+    const { nombre, dni } = request.body;
+    connection.query(
+        "SELECT DISTINCT * " + 
+        "FROM gf_alumnosfct " +
+        "WHERE nombre = ?  AND dni = ?",
+        [nombre, dni],
+        (error, results) => {
+            if (error) {
+                console.error("Error en la consulta SQL:", error);
+                response.status(500).json({ error: "Error interno del servidor" });
+                return;
+            }
+            response.status(200).json(results);
+        }
+    );
+};
+
+// MODIFICAR DATOS ALUMNO
+exports.updateStudent = function (request, response) {
+    const {nombre, sexo, dni, fechanacimiento, preferencia1, preferencia2, preferencia3, fecha, estadocurriculum, estadoadmision, emailinstituto,
+        nacionalidad, carnetconducir, disponibilidad, numeroSS, situacionlaboral, nombretutorlegal,
+        especialidad, telalumno, telfamilia, email, observaciones, mesFCT,domicilio,cp,localidad, idalumno} = request.body;
+        const fechaOK = fecha.substring(0,10)
+        const fechanacimientoOK = fechanacimiento.substring(0,10)
+
+    connection.query("UPDATE gf_alumnosfct" +
+                    " SET nombre = ?, sexo = ?, dni = ?, fechanacimiento = ?, preferencia1 = ?, preferencia2 = ?, preferencia3 = ?, fecha = ?, estadocurriculum = ?, estadoadmision = ?, emailinstituto = ?," +
+                    " nacionalidad = ?, carnetconducir = ?, disponibilidad = ?, numeroSS = ?, situacionlaboral = ?, nombretutorlegal = ?," +
+                    " especialidad = ?, telalumno = ?, telfamilia = ?, email = ?, observaciones = ?, mesFCT = ?, domicilio = ?, cp = ?, localidad = ?" +
+                    " WHERE idalumno = ?",
+                    
+        [nombre, sexo, dni, fechanacimientoOK, preferencia1, preferencia2, preferencia3, fechaOK, estadocurriculum, estadoadmision, emailinstituto,
+        nacionalidad, carnetconducir, disponibilidad, numeroSS, situacionlaboral, nombretutorlegal,
+        especialidad, telalumno, telfamilia, email, observaciones, mesFCT, domicilio, cp, localidad, idalumno],
+        (error, results) => {
+            if (error) throw error;
+            response.status(201).json("Item añadido correctamente");
+        }
+    );
+};
+// AÑADIR IDIOMAS AL ALUMNO
+exports.updateStudent_Idiom = function (request, response) {
+    const {idalumno, ididioma, titulo} = request.body;
+    connection.query("UPDATE idiomas_alumnos" +
+                    " SET idalumno = ?, ididioma = ?, titulo = ? " +
+                    " WHERE idalumno = ?",
+        [idalumno, ididioma, titulo, idalumno],
+        (error, results) => {
+            if (error) {
+                response.status(500).json({ error: "Error interno del servidor" });
+            } else {
+                response.status(201).json("Item añadido correctamente");
+            }
+        }
+    );
+};
+
+// AÑADIR DOCUMENTOS AL ALUMNO
+exports.updateStudent_Doc = function (request, response) {
+    const {idalumno,docalum,url} = request.body;
+    console.log(idalumno);
+    connection.query("UPDATE doc_alumnos" +
+                    " SET idalumno = ?, docalum = ?, url= ? " +
+                    " WHERE idalumno = ?",
+        [idalumno,docalum,url,idalumno],
+    (error, results) => {
+        if(error)
+            throw error;
+        response.status(200).json(results);
+    });
+};
+
+// AÑADIR CALIFICACION AL ALUMNO
+exports.updateStudent_Calification = function (request, response) {
+    const {idalumno,notamedia,notaidioma,notamadurez,notacompetencia,numfaltas,notafaltas,notaglobal,observaciones2} = request.body;
+    const observaciones = observaciones2;
+    console.log(idalumno);
+    connection.query( "UPDATE valoraciones" +
+                    " SET notamedia = ?, notaidioma = ?, notamadurez = ?, notacompetencia = ?, numfaltas = ?, notafaltas = ?, notaglobal = ?, observaciones = ?" +
+                    " WHERE idalumno = ?",
+        [notamedia,notaidioma,notamadurez,notacompetencia,numfaltas,notafaltas,notaglobal,observaciones,idalumno],
+    (error, results) => {
+        if(error)
+            throw error;
+        response.status(200).json(results);
+    });
+};
