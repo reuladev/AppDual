@@ -13,9 +13,12 @@ router.post('/getCandidatesIdData', CandidatesService.getCandidatesIdData);
 router.post('/getCandidatesIdFromData', CandidatesService.getCandidatesIdFromData);
 router.post('/updateCandidate', CandidatesService.updateCandidate); 
 
+
+router.post('/getNameById', CandidatesService.getNameById); 
 router.post('/addCandidate', CandidatesService.addCandidate); 
 router.post('/deleteCandidate', CandidatesService.deleteCandidate); 
 
+router.post('/candidateDeletionRequest ', CandidatesService.candidateDeletionRequest ); 
 
 router.post('/getStudentName', CandidatesService.getStudentName); 
 

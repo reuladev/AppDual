@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import '../styles.css';
 
 function GetCandidate() {
   const location = useLocation();
+  const navigate = useNavigate(); //Va a contener la ruta del componente al que redirigiremos al usuario.
   const { candidateId2 } = location.state || {};
   const [candidateData, setCandidateData] = useState([]);
   const [candidateDataPlusAttributes, setCandidateDataPlusAttributes] = useState([]);
@@ -50,10 +52,10 @@ function GetCandidate() {
     }
   };
 
-  const fetchCandidateDataByIdPlusAttributes = async (id) => {
+  const fetchCandidateDataByIdPlusAttributes = async (candidateId2) => {
     try {
       const bodyParameters = {
-        'idcandidato': id
+        'idcandidato': candidateId2
       };
       const options = {
         method: 'POST',
@@ -71,6 +73,52 @@ function GetCandidate() {
       return [];
     }
   };
+
+    /*
+      Al pulsar el boton de editar el usuario, lo redirije al componente
+      studentEdit para poder editar cada campo.
+      Tambien envia a este todos los datos necesarios para poder editarlos.
+    */
+    const ButtonClickEditCandidate = () => {
+        navigate(`/candidateEdit`, { 
+            state: { 
+                candidateId: candidateId2, 
+                candidateData: candidateData,
+                candidateDataPlusAttributes: candidateDataPlusAttributes
+            } 
+        });
+    };
+
+    /* 
+        Borrado de candidato
+    */
+        const CandidateDeletionRequest = async (candidateId2) => {
+          try {
+              const bodyParameters = {
+                  'idcandidato': candidateId2
+              };
+              const options = {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(bodyParameters)
+              };
+              const response = await fetch("/candidateDeletionRequest", options);
+              if (!response.ok) {
+                  throw new Error('Error en la solicitud');
+              }
+              const jsonResponse = await response.json();
+          } catch (error) {
+              console.error('Error:', error.message);
+          }
+      };
+
+    /* 
+        Este boton ejecuta la peticion de borrado de un candidato.
+        Nota: No tiene encuenta registros en otras tablas.
+    */
+    const ButtonClickDeleteCandidate = () => {
+        CandidateDeletionRequest (candidateId2);
+    };
 
   return (
     <div>
@@ -108,6 +156,14 @@ function GetCandidate() {
           </div>
         ))}
       </div>
+      {/* Botón de edición */}
+      <button className="editButton" type="button" onClick={ButtonClickEditCandidate}>
+        EDITAR
+      </button>
+      {/* Botón de borrar */}
+      <button className="deleteButton" type="button" onClick={ButtonClickDeleteCandidate}>
+            BORRAR
+          </button>
     </div>
   );
 }

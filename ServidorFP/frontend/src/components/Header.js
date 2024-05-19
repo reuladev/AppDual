@@ -27,9 +27,8 @@ function Header() {
               ALUMNOS
               {submenuOpen && (
                 <div className="submenu">
-                  <div><Link to="/addStudent" className="subOption">Añadir nuevo alumno</Link></div>
-                  <div><Link to="/updateStudent" className="subOption">Administrar Alumnos</Link></div>
-                  <div><Link to="/searchStudent" className="subOption">Mostrar Alumnos</Link></div>
+                  <div><Link to="/addStudent" className="subOption">Nuevo alumno</Link></div>
+                  <div><Link to="/searchStudent" className="subOption">Buscar alumno</Link></div>
                 </div>
               )}
             </div>

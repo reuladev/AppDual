@@ -20,6 +20,7 @@ import SearchCandidate from "./components/SearchCandidate";
 import AddCandidate from "./components/AddCandidate";
 import GetAllCandidates from "./components/GetAllCandidates";
 import UpdateCandidate from "./components/UpdateCandidate";
+import CandidateEdit from "./components/CandidateEdit";
 
 
 
@@ -42,6 +43,8 @@ function App() {
           <Route path="/updateCandidate" element={<><Header/><UpdateCandidate/><Footer/></>} />
           <Route path="/searchStudent" element={<><Header/><SearchStudent/><Footer/></>} />
           <Route path="/searchCandidate" element={<><Header/><SearchCandidate/><Footer/></>} />
+          <Route path="/getCandidate" element={<><Header/><GetCandidate/><Footer/></>} />
+          <Route path="/candidateEdit" element={<><Header/><CandidateEdit/><Footer/></>} />
           <Route path="/getStudent" element={<><Header/><GetStudent/><Footer/></>} />
           <Route path="/getCandidate" element={<><Header/><GetCandidate/><Footer/></>} />
           <Route path="/studentEdit" element={<><Header/><StudentEdit/><Footer/></>} />
