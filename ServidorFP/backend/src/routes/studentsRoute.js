@@ -18,6 +18,9 @@ router.post('/getStudentPreference1', StudentsService.getStudentPreference1);
 router.post('/getStudentPreference2', StudentsService.getStudentPreference2);
 router.post('/getStudentPreference3', StudentsService.getStudentPreference3);
 
+router.post('/studentPreferences1Requests', StudentsService.studentPreferences1Request);
+router.post('/studentPreferences2Requests', StudentsService.studentPreferences2Request);
+router.post('/studentPreferences3Requests', StudentsService.studentPreferences3Request);
 router.post('/getStudentDates', StudentsService.getStudentDates);
 router.post('/updateStudent', StudentsService.updateStudent);
 router.post('/updateStudent_Idiom', StudentsService.updateStudent_Idiom);

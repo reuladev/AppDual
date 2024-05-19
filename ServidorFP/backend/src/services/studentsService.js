@@ -69,7 +69,7 @@ exports.getStudentIdioms = function (request, response) {
     const { idalumno } = request.body;
     console.log(idalumno);
     connection.query(
-        `SELECT DISTINCT id.idalumno, i.idioma, id.titulo 
+        `SELECT DISTINCT id.idalumno, i.ididioma, i.idioma, id.titulo 
         FROM idiomas_alumnos id
         INNER JOIN idiomas i ON i.ididioma = id.ididioma
         WHERE id.idalumno = ?`,
@@ -251,6 +251,77 @@ exports.getStudentDates = function (request, response) {
 };
 
 // MODIFICAR DATOS ALUMNO
+
+// ENCONTRAR EL ID DE LAS PREFERENCIAS DEL ALUMNO DADO SU CONTENIDO
+exports.studentPreferences1Request = function (request, response) {
+    const {preferencia1} = request.body;
+    connection.query(
+                    `SELECT		idpreferencia
+                     FROM		preferencias
+                     WHERE		preferencia LIKE ?`,
+                     ['%' + preferencia1 + '%'],
+        (error, results) => {
+            if (error) {
+                response.status(500).json({ error: "Error interno del servidor" });
+            } else {
+                if (results && results.length > 0) {
+                    response.status(200).json(results);
+                } else {
+                    // Si no se encontraron resultados
+                    response.status(404).json({ message: "No se encontraron resultados para la preferencia proporcionada" });
+                }
+            }
+        }
+    );
+};
+
+// ENCONTRAR EL ID DE LAS PREFERENCIAS DEL ALUMNO DADO SU CONTENIDO
+exports.studentPreferences2Request = function (request, response) {
+    const {preferencia2} = request.body;
+    connection.query(
+                   `SELECT		idpreferencia
+                    FROM		preferencias
+                    WHERE		preferencia LIKE ?`,
+                    ['%' + preferencia2 + '%'],
+        (error, results) => {
+            if (error) {
+                response.status(500).json({ error: "Error interno del servidor" });
+            } else {
+                if (results && results.length > 0) {
+                    response.status(200).json(results);
+                } else {
+                    // Si no se encontraron resultados
+                    response.status(404).json({ message: "No se encontraron resultados para la preferencia proporcionada" });
+                }
+            }
+        }
+    );
+};
+
+// ENCONTRAR EL ID DE LAS PREFERENCIAS DEL ALUMNO DADO SU CONTENIDO
+exports.studentPreferences3Request = function (request, response) {
+    const {preferencia3} = request.body;
+    connection.query(
+                       `SELECT		idpreferencia
+                        FROM		preferencias
+                        WHERE		preferencia LIKE ?`,
+                        ['%' + preferencia3 + '%'],
+        (error, results) => {
+            if (error) {
+                response.status(500).json({ error: "Error interno del servidor" });
+            } else {
+                // Verificar si se obtuvieron resultados
+                if (results && results.length > 0) {
+                    response.status(200).json(results);
+                } else {
+                    // Si no se encontraron resultados
+                    response.status(404).json({ message: "No se encontraron resultados para la preferencia proporcionada" });
+                }
+            }
+        }
+    );
+};
+
 exports.updateStudent = function (request, response) {
     const {nombre, sexo, dni, fechanacimiento, preferencia1, preferencia2, preferencia3, fecha, estadocurriculum, estadoadmision, emailinstituto,
         nacionalidad, carnetconducir, disponibilidad, numeroSS, situacionlaboral, nombretutorlegal,
@@ -276,6 +347,9 @@ exports.updateStudent = function (request, response) {
 // AÑADIR IDIOMAS AL ALUMNO
 exports.updateStudent_Idiom = function (request, response) {
     const {idalumno, ididioma, titulo} = request.body;
+    console.log('idalumnoIdioma:', idalumno);
+    console.log('ididioma:', ididioma);
+    console.log('titulo:', titulo);
     connection.query("UPDATE idiomas_alumnos" +
                     " SET idalumno = ?, ididioma = ?, titulo = ? " +
                     " WHERE idalumno = ?",
@@ -293,7 +367,9 @@ exports.updateStudent_Idiom = function (request, response) {
 // AÑADIR DOCUMENTOS AL ALUMNO
 exports.updateStudent_Doc = function (request, response) {
     const {idalumno,docalum,url} = request.body;
-    console.log(idalumno);
+    console.log("IDALUMNO doc: " + idalumno);
+    console.log("DOCUMENTO: " + docalum);
+    console.log("URL: " + url);
     connection.query("UPDATE doc_alumnos" +
                     " SET idalumno = ?, docalum = ?, url= ? " +
                     " WHERE idalumno = ?",
@@ -305,15 +381,16 @@ exports.updateStudent_Doc = function (request, response) {
     });
 };
 
+
+//Nota: Cuando cambies la notaglobal para que contenga algo, lo descongelas.
 // AÑADIR CALIFICACION AL ALUMNO
 exports.updateStudent_Calification = function (request, response) {
     const {idalumno,notamedia,notaidioma,notamadurez,notacompetencia,numfaltas,notafaltas,notaglobal,observaciones2} = request.body;
     const observaciones = observaciones2;
-    console.log(idalumno);
     connection.query( "UPDATE valoraciones" +
-                    " SET notamedia = ?, notaidioma = ?, notamadurez = ?, notacompetencia = ?, numfaltas = ?, notafaltas = ?, notaglobal = ?, observaciones = ?" +
+                    " SET notamedia = ?, notaidioma = ?, notamadurez = ?, notacompetencia = ?, numfaltas = ?, notafaltas = ?, observaciones = ?" +
                     " WHERE idalumno = ?",
-        [notamedia,notaidioma,notamadurez,notacompetencia,numfaltas,notafaltas,notaglobal,observaciones,idalumno],
+        [notamedia,notaidioma,notamadurez,notacompetencia,numfaltas,notafaltas,observaciones,idalumno],
     (error, results) => {
         if(error)
             throw error;
