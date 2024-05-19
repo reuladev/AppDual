@@ -15,6 +15,7 @@ function GetStudent() {
   const [preference2, setPreference2] = useState("");
   const [preference3, setPreference3] = useState("");
 
+
     /*
     Si studentId recibe datos, es actualizado, navegamos hasta /getStudent
     */
@@ -153,6 +154,7 @@ function GetStudent() {
             throw new Error('Error en la solicitud');
             }
             const jsonResponse = await response.json();
+            console.log("Preference 1:", jsonResponse);
             setPreference1(jsonResponse);
         } catch (error) {
             console.error('Error:', error.message);
@@ -179,6 +181,7 @@ function GetStudent() {
             throw new Error('Error en la solicitud');
             }
             const jsonResponse = await response.json();
+            console.log("Preference 2:", jsonResponse);
             setPreference2(jsonResponse);
         } catch (error) {
             console.error('Error:', error.message);
@@ -205,12 +208,18 @@ function GetStudent() {
             throw new Error('Error en la solicitud');
             }
             const jsonResponse = await response.json();
+            console.log("Preference 3:", jsonResponse);
             setPreference3(jsonResponse);
         } catch (error) {
             console.error('Error:', error.message);
         }
     };
 
+    /*
+      Al pulsar el boton de editar el usuario, lo redirije al componente
+      studentEdit para poder editar cada campo.
+      Tambien envia a este todos los datos necesarios para poder editarlos.
+    */
     const ButtonClickEditStudent = () => {
         navigate(`/studentEdit`, { 
             state: { 
@@ -227,11 +236,11 @@ function GetStudent() {
     };
 
     return (
+        
         <div className="results-container">
           {studentData.map((item, index) => (
             <div key={index} className="student-card">
               <ul className="student-info-list">
-                {/* Información del estudiante */}
                 <li><strong>Nombre:</strong> {item.nombre}</li>
                 <li><strong>Sexo:</strong> {item.sexo}</li>
                 <li><strong>DNI:</strong> {item.dni}</li>
@@ -259,26 +268,54 @@ function GetStudent() {
               </ul>
             </div>
           ))}
+          <div className="results-container">
+                <div className="student-card">
+                    <ul>
+                        <li>
+                        <strong>Primera preferencia:</strong> {preference1.length > 0 ? preference1[0].preferencia : ''}
+                        </li>
+                        <li>
+                        <strong>Segunda preferencia:</strong> {preference2.length > 0 ? preference2[0].preferencia : ''}
+                        </li>
+                        <li>
+                        <strong>Tercera preferencia:</strong> {preference3.length > 0 ? preference3[0].preferencia : ''}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+          {calificationsData.map((item, index) => (
+            <div key={index} className="student-card">
+              <ul className="student-info-list">
+                <li><strong>Nota media:</strong> {item.notamedia}</li>
+                <li><strong>Nota idioma:</strong> {item.notaidioma}</li>
+                <li><strong>Nota madurez:</strong> {item.notamadurez}</li>
+                <li><strong>Nota competencia:</strong> {item.notacompetencia}</li>
+                <li><strong>Número de faltas:</strong> {item.numfaltas}</li>
+                <li><strong>Nota faltas:</strong> {item.notafaltas}</li>
+                <li><strong>Nota global:</strong> {item.notaglobal}</li>
+                <li><strong>Observaciones:</strong> {item.observaciones}</li>
+              </ul>
+            </div>
+          ))}
             {/* Documentos */}
-            <div>
+            <div className="student-card">
             <h4> DOCUMENTOS: </h4>
             {docsData.map((doc, docIndex) => ( 
                 <div key={docIndex}>
-                <li><strong>Documento:</strong> {doc.docalum}</li>
-                <li><strong>URL:</strong> {doc.url}</li>
+                    <li><strong>Documento:</strong> {doc.docalum}</li>
+                    <li><strong>URL:</strong> {doc.url}</li>
                 </div>
-            ))}
+                ))}
             </div>
-
-                    {/* Idiomas */}
-            <div>
-            <h4> IDIOMAS: </h4>
-            {idiomsData.map((idiom, idiomIndex) => ( 
+             {/* Idiomas */}
+            <div className="student-card">
+                <h4> IDIOMAS: </h4>
+                {idiomsData.map((idiom, idiomIndex) => ( 
                 <div key={idiomIndex}>
-                <li><strong>IDIOMA:</strong> {idiom.idioma}</li>
-                <li><strong>TITULO:</strong> {idiom.titulo}</li>
+                    <li><strong>IDIOMA:</strong> {idiom.idioma}</li>
+                    <li><strong>TITULO:</strong> {idiom.titulo}</li>
                 </div>
-            ))}
+                ))}
             </div>
           {/* Botón de edición */}
           <button className="editButton" type="button" onClick={ButtonClickEditStudent}>
