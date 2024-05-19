@@ -4,9 +4,9 @@ import '../styles.css';
 
 function GetStudent() {
   const location = useLocation(); // Obtiene el objeto location
+  const navigate = useNavigate(); //Va a contener la ruta del componente al que redirigiremos al usuario.
   const {studentId2} = location.state || {}; // Obtén el idalumno del estado de 
   const [studentData, setStudentData] = useState([]); //Va a almacenar todos del estudiante
-  const navigate = useNavigate(); //Va a contener la ruta del componente al que redirigiremos al usuario.
 
   const [idiomsData, setIdiomsData] = useState([]);
   const [docsData, setDocsData] = useState([]);
@@ -235,6 +235,37 @@ function GetStudent() {
         });
     };
 
+    /* 
+        Borrado de alumno
+    */
+    const StudentDeletionRequest = async (studentId2) => {
+        try {
+            const bodyParameters = {
+                'idalumno': studentId2
+            };
+            const options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bodyParameters)
+            };
+            const response = await fetch("/studentDeletionRequest", options);
+            if (!response.ok) {
+                throw new Error('Error en la solicitud');
+            }
+            const jsonResponse = await response.json();
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    };
+
+    /* 
+        Este boton ejecuta la peticion de borrado de un alumno.
+        Nota: No tiene encuenta registros en otras tablas.
+    */
+    const ButtonClickDeleteStudent = () => {
+        StudentDeletionRequest (studentId2);
+    };
+
     return (
         
         <div className="results-container">
@@ -320,6 +351,10 @@ function GetStudent() {
           {/* Botón de edición */}
           <button className="editButton" type="button" onClick={ButtonClickEditStudent}>
             EDITAR
+          </button>
+          {/* Botón de borrar */}
+          <button className="deleteButton" type="button" onClick={ButtonClickDeleteStudent}>
+            BORRAR
           </button>
         </div>
       );

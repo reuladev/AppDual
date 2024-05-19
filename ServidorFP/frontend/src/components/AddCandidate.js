@@ -7,6 +7,7 @@ function AddCandidateComponent(){
     const [dataCandidate, setDataCandidate] = useState([]);
     const [candidateId, setCandidateId] = useState("");
     // ATRIBUTOS DEL CANDIDATO
+    const [name, setName] = useState("");
     const [studentId, setStudentId] = useState("");
     const [assignmentDate, setAssignmentDate] = useState("");
     const [studentDualStatus, setStudentDualStatus] = useState("");
@@ -28,10 +29,38 @@ function AddCandidateComponent(){
     const [relationshipType, setRelationshipType] = useState("");
     const [cno, setCno] = useState("");
 
+    console.log(dataCandidate);
+
     // ----------------------------------------------------------------   USE EFFECTS
     useEffect(() => {
         GetAllCandidates(); 
-    }, []);
+        GetNameById (name)
+    }, [name]);
+
+    
+
+    
+    const GetNameById = async (name) => {
+      try {
+          const bodyParameters = {
+          'nombre': name
+          };
+          const options = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyParameters)
+          };
+          const response = await fetch("/getNameById", options);
+          if (!response.ok) {
+          throw new Error('Error en la solicitud');
+          }
+          const jsonResponse = await response.json();
+          console.log("Id devuelto: " + jsonResponse);
+          setStudentId(jsonResponse[0].idalumno);
+      } catch (error) {
+          console.error('Error:', error.message);
+      }
+   };
 
     function GetAllCandidates() {
         fetch('/getAllCandidates') 
@@ -53,74 +82,63 @@ function AddCandidateComponent(){
 
     function IncrementCandidateId(idcandidato){
         setCandidateId(idcandidato + 1);
-      }
+    }
 
         
     const AddNewCandidate = async (studentId, assignmentDate, studentDualStatus, company1Status, company2Status, company3Status,
                                    firstCompany, secondCompany, thirdCompany, hiredCompany, dualStudentEmail, companyOpinion, 
                                    observations, shift, receivedAttachment, filledAttachment, calendarStatus, attachment, 
                                    relationshipType, cno) => {
-                                    console.log('studentId:', studentId);
-        console.log('assignmentDate:', assignmentDate);
-        console.log('studentDualStatus:', studentDualStatus);
-        console.log('company1Status:', company1Status);
-        console.log('company2Status:', company2Status);
-        console.log('company3Status:', company3Status);
-        console.log('firstCompany:', firstCompany);
-        console.log('secondCompany:', secondCompany);
-        console.log('thirdCompany:', thirdCompany);
-        console.log('hiredCompany:', hiredCompany);
-        console.log('dualStudentEmail:', dualStudentEmail);
-        console.log('companyOpinion:', companyOpinion);
-        console.log('observations:', observations);
-        console.log('shift:', shift);
-        console.log('receivedAttachment:', receivedAttachment);
-        console.log('filledAttachment:', filledAttachment);
-        console.log('calendarStatus:', calendarStatus);
-        console.log('attachment:', attachment);
-        console.log('relationshipType:', relationshipType);
-        console.log('cno:', cno);
-    try {
-        const bodyParameters = {
-                'idalumno': studentId,
-                'fechaasignacion': assignmentDate,
-                'estadodualalumno': studentDualStatus,
-                'estadoempresa1': company1Status,
-                'estadoempresa2': company2Status,
-                'estadoempresa3': company3Status,
-                'primeraempresa': firstCompany,
-                'segundaempresa': secondCompany,
-                'terceraempresa': thirdCompany,
-                'empresacontratada': hiredCompany,
-                'emaildualalumno': dualStudentEmail,
-                'opinionempresa': companyOpinion,
-                'observaciones': observations,
-                'turno': shift,
-                'anexorecibido': receivedAttachment,
-                'anexorellenado': filledAttachment,
-                'estadocalendario': calendarStatus,
-                'anexo': attachment,
-                'tiporelacion': relationshipType,
-                'cno': cno
-        }
-        const options = {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(bodyParameters)
+            try {
+              const bodyParameters = {
+                  'idalumno': studentId,
+                  'fechaasignacion': assignmentDate,
+                  'estadodualalumno': studentDualStatus,
+                  'estadoempresa1': company1Status,
+                  'estadoempresa2': company2Status,
+                  'estadoempresa3': company3Status,
+                  'primeraempresa': firstCompany,
+                  'segundaempresa': secondCompany,
+                  'terceraempresa': thirdCompany,
+                  'empresacontratada': hiredCompany,
+                  'emaildualalumno': dualStudentEmail,
+                  'opinionempresa': companyOpinion,
+                  'observaciones': observations,
+                  'turno': shift,
+                  'anexorecibido': receivedAttachment,
+                  'anexorellenado': filledAttachment,
+                  'estadocalendario': calendarStatus,
+                  'anexo': attachment,
+                  'tiporelacion': relationshipType,
+                  'cno': cno,
+              };
+      
+              const options = {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(bodyParameters)
+              };
+      
+              const response = await fetch("/addCandidate", options);
+      
+              if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error(errorData.error || 'Error añadiendo el candidato');
+              }
+      
+              const jsonResponse = await response.json();
+              console.log("Devolución: " + JSON.stringify(jsonResponse));
+              return jsonResponse;
+          } catch (error) {
+              console.error('Error:', error.message);
+              alert(error.message);  // Mostrar una alerta con el mensaje de error
           }
-          
-          const response = await fetch("/addCandidate", options);
-          if (!response.ok) {
-            throw new Error('Error adding the student');
-          }
-          const jsonResponse = await response.json();
-          console.log(JSON.stringify(jsonResponse));
-          return jsonResponse;
-        } catch (error) {
-          console.error('Error:', error.message);
-        }
+      }
+
+      function HandleNameChange(event){
+        setName(event.target.value);
       }
 
       function HandleStudentIdChange(event){
@@ -219,8 +237,8 @@ function AddCandidateComponent(){
       <form className="section">
         <h4 className="tittle">AÑADIR CANDIDATO:</h4>
           <div className="input-field">
-            <label htmlFor="studentId-input">ID del Estudiante:</label>
-            <input type="text" value={studentId} id="studentId-input" onChange={HandleStudentIdChange} />
+            <label htmlFor="studentId-input">Nombre del estudiante:</label>
+            <input type="text" value={name} id="studentId-input" onChange={HandleNameChange} />
           </div>
       
           <div className="input-field">

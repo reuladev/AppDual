@@ -64,6 +64,26 @@ exports.getStudentCalification = function (request, response) {
     );
 };
 
+// OBTENER IDIDIOMA DADO UN IDIOMA
+exports.getIdiomIdByIdiom = function (request, response) {
+    const { idioma } = request.body;
+    console.log("Idioma del que quiero saber su ID: " + idioma);
+    connection.query(
+        `SELECT		ididioma
+         FROM		idiomas
+         WHERE		idioma LIKE ?`,
+        ['%' + idioma + '%'],
+        (error, results) => {
+            if (error) {
+                console.error("Error en la consulta SQL:", error);
+                response.status(500).json({ error: "Error interno del servidor" });
+                return;
+            }
+            response.status(200).json(results);
+        }
+    );
+};
+
 // OBTENER IDIOMAS Y TITULOS DE ALUMNO POR IDALUMNO
 exports.getStudentIdioms = function (request, response) {
     const { idalumno } = request.body;
@@ -105,7 +125,7 @@ exports.getStudentPreference1 = function (request, response) {
         }
     );
 };
-
+// OBTENER PREFERENCIAS POR IDALUMNO
 exports.getStudentPreference2 = function (request, response) {
     const { idalumno } = request.body;
     console.log(idalumno);
@@ -125,7 +145,7 @@ exports.getStudentPreference2 = function (request, response) {
         }
     );
 };
-
+// OBTENER PREFERENCIAS POR IDALUMNO
 exports.getStudentPreference3 = function (request, response) {
     const { idalumno } = request.body;
     console.log(idalumno);
@@ -366,14 +386,15 @@ exports.updateStudent_Idiom = function (request, response) {
 
 // AÑADIR DOCUMENTOS AL ALUMNO
 exports.updateStudent_Doc = function (request, response) {
-    const {idalumno,docalum,url} = request.body;
+    const {idalumno,docalum,url, iddocalumno} = request.body;
     console.log("IDALUMNO doc: " + idalumno);
     console.log("DOCUMENTO: " + docalum);
     console.log("URL: " + url);
+    console.log("IDDOCALUMNO: " + iddocalumno);
     connection.query("UPDATE doc_alumnos" +
-                    " SET idalumno = ?, docalum = ?, url= ? " +
-                    " WHERE idalumno = ?",
-        [idalumno,docalum,url,idalumno],
+                    " SET idalumno = ?, docalum = ?, url= ?" +
+                    " WHERE iddocalumno = ?",
+        [idalumno,docalum,url, iddocalumno],
     (error, results) => {
         if(error)
             throw error;
@@ -395,5 +416,31 @@ exports.updateStudent_Calification = function (request, response) {
         if(error)
             throw error;
         response.status(200).json(results);
+    });
+};
+
+//BORRADO DE ALUMNO
+exports.studentDeletionRequest = function (request, response) {
+    const { idalumno } = request.body;
+    
+    // Desactivar la verificación de clave externa
+    connection.query("SET FOREIGN_KEY_CHECKS = 0;", (error, results) => {
+        if (error) {
+            throw error;
+        }
+        
+        // Eliminar el alumno
+        connection.query("DELETE FROM gf_alumnosfct WHERE idalumno = ?;", [idalumno], (error, results) => {
+            if (error) {
+                throw error;
+            }
+            
+            // Activar la verificación de clave externa
+            connection.query("SET FOREIGN_KEY_CHECKS = 1;", (error, results) => {
+                if (error) {
+                    throw error;
+                }
+            });
+        });
     });
 };

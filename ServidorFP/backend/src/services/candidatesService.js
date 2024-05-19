@@ -1,5 +1,24 @@
 const { connection } = require("../db/config");
 
+
+// OBTENER EL IDALUMNO SEGUN UN NOMBRE
+exports.getNameById = function (request, response) {
+    const {nombre} = request.body;
+    console.log(nombre);
+    connection.query(
+        `SELECT		a.idalumno
+         FROM		gf_alumnosfct a, candidatos c
+         WHERE		a.nombre = ? AND c.idalumno = c.idalumno
+         LIMIT      1`,
+         [nombre],
+        (error, results) => {
+            if (error)
+                throw error;
+            response.status(200).json(results);
+        }
+    );
+};
+
 // LISTAR CANDIDATOS SEGUN SU NOMBRE CON LIKE
 exports.getCandidateDataByName = function (request, response) {
     const { nombre } = request.body;
@@ -8,7 +27,8 @@ exports.getCandidateDataByName = function (request, response) {
         "SELECT  a.nombre,  c.* " +
         "FROM  candidatos c " +
         "INNER JOIN  gf_alumnosfct a ON a.idalumno = c.idalumno " +
-        "WHERE a.nombre LIKE ?", 
+        "WHERE a.nombre LIKE ?" +
+        "LIMIT 1", 
         ['%' + nombre + '%'],
         (error, results) => {
             if (error)
@@ -38,7 +58,7 @@ exports.getCandidateDataById = function (request, response) {
 // OBTENER DATOS DE OTRAS TABLAS USANDO IDCANDIDATO
 exports.getCandidateDataByIdPlusAtributtes = function (request, response) {
     const {idcandidato} = request.body;
-    console.log(idcandidato);
+    console.log("idcandidato: " + idcandidato);
     connection.query(
         "SELECT a.nombre, e.tipo AS estado_alumno, emp.empresa AS empresa1, e2.tipo AS estado_empresa1, emp2.empresa AS empresa2, e3.tipo AS estado_empresa2, emp3.empresa AS empresa3, e4.tipo AS estado_empresa3, emp4.empresa AS empresa_contratada" +
         " FROM candidatos c " +
@@ -198,6 +218,12 @@ exports.addCandidate = function (request, response) {
         observaciones, turno, anexorecibido, anexorellenado, estadocalendario, anexo, tiporelacion, cno
     } = request.body;
 
+    // Verificar si idalumno está vacío, nulo o indefinido
+    if (!idalumno || idalumno.trim() === '') {
+        return response.status(400).json({ error: "El alumno no existe" });
+    }
+
+
     connection.query(
         "INSERT INTO candidatos (idalumno, fechaasignacion, estadodualalumno, estadoempresa1, estadoempresa2, " + 
         "estadoempresa3, primeraempresa, segundaempresa, terceraempresa, empresacontratada, emaildualalumno, opinionempresa, " +
@@ -207,7 +233,10 @@ exports.addCandidate = function (request, response) {
          primeraempresa, segundaempresa, terceraempresa, empresacontratada, emaildualalumno, opinionempresa, 
          observaciones, turno, anexorecibido, anexorellenado, estadocalendario, anexo, tiporelacion, cno],
         (error, results) => {
-            if (error) throw error;
+             if (error) {
+                console.error("Error executing query:", error); // Log error in server console
+                return response.status(500).json({ error: "Error añadiendo el candidato" }); // Return server error
+            }
             response.status(201).json("Item añadido correctamente");
         }
     );
@@ -237,16 +266,37 @@ exports.updateCandidate = function (request, response) {
         primeraempresa, segundaempresa, terceraempresa, empresacontratada, emaildualalumno, opinionempresa,
         observaciones, turno, anexorecibido, anexorellenado, estadocalendario, anexo, tiporelacion, cno, idcandidato
     } = request.body;
+    console.log(idcandidato);
+    console.log(idalumno);
+    console.log(fechaasignacion);
+    console.log(estadodualalumno);
+    console.log(estadoempresa1);
+    console.log(estadoempresa2);
+    console.log(estadoempresa3);
+    console.log(primeraempresa);
+    console.log(segundaempresa);
+    console.log(terceraempresa);
+    console.log(empresacontratada);
+    console.log(emaildualalumno);
+    console.log(opinionempresa);
+    console.log(observaciones);
+    console.log(turno);
+    console.log(anexorecibido);
+    console.log(anexorellenado);
+    console.log(estadocalendario);
+    console.log(anexo);
+    console.log(tiporelacion);
+    console.log(cno);
 
     const fechaasignacionOK = fechaasignacion.substring(0,10)
 
     connection.query(
-        "UPDATE candidatos " + 
-        "SET idalumno = ?, fechaasignacion = ?, estadodualalumno = ?, estadoempresa1 = ?, estadoempresa2 = ?," + 
-        "estadoempresa3 = ?, primeraempresa = ?, segundaempresa = ?, terceraempresa = ?, empresacontratada = ?," +
-        "emaildualalumno = ?, opinionempresa = ?, observaciones = ?, turno = ?, anexorecibido = ?, anexorellenado = ?," +
-        "estadocalendario = ?, anexo = ?, tiporelacion = ?, cno = ?" + 
-        "WHERE idcandidato = ?",
+        `UPDATE candidatos
+         SET idalumno = ?, fechaasignacion = ?, estadodualalumno = ?, estadoempresa1 = ?, estadoempresa2 = ?,
+         estadoempresa3 = ?, primeraempresa = ?, segundaempresa = ?, terceraempresa = ?, empresacontratada = ?,
+         emaildualalumno = ?, opinionempresa = ?, observaciones = ?, turno = ?, anexorecibido = ?, anexorellenado = ?,
+         estadocalendario = ?, anexo = ?, tiporelacion = ?, cno = ? 
+         WHERE idcandidato = ?`,
         [
             idalumno, fechaasignacionOK, estadodualalumno, estadoempresa1, estadoempresa2, estadoempresa3, 
             primeraempresa, segundaempresa, terceraempresa, empresacontratada, emaildualalumno, opinionempresa,
@@ -259,4 +309,30 @@ exports.updateCandidate = function (request, response) {
             response.status(201).json("Item actualizado correctamente");
         }
     );
+};
+
+//BORRADO DE CANDIDATO
+exports.candidateDeletionRequest = function (request, response) {
+    const { idcandidato } = request.body;
+    
+    // Desactivar la verificación de clave externa
+    connection.query("SET FOREIGN_KEY_CHECKS = 0;", (error, results) => {
+        if (error) {
+            throw error;
+        }
+        
+        // Eliminar el candidato
+        connection.query("DELETE FROM candidatos WHERE idcandidato = ?;", [idcandidato], (error, results) => {
+            if (error) {
+                throw error;
+            }
+            
+            // Activar la verificación de clave externa
+            connection.query("SET FOREIGN_KEY_CHECKS = 1;", (error, results) => {
+                if (error) {
+                    throw error;
+                }
+            });
+        });
+    });
 };

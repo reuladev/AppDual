@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom'; // --> Permite la interaccion entre componentes: enviar datos, redireccionar a otros componentes etc
 import '../styles.css';
 import { format } from 'date-fns'; // --> Para poder formatear la fecha DD-MM-AAAA
 
@@ -16,23 +16,26 @@ function GetStudentEdit() {
           hacer es realizar 3 querrys diferentes para obtener cada preferencia por se
           parado.
     */
-
     //ATRIBUTOS OBTENIDOS DE GETSTUDENT
     const location = useLocation();
     const { studentData } = location.state || {};
     const { preference1} = location.state || {};
     const { preference2} = location.state || {};
     const { preference3} = location.state || {};
-    const { studentId2, setStudentId2 } = location.state || {};
+    const { studentId, setStudentId } = location.state || {};
     const { idiomsData, setIdiomsData} = location.state || {};
     const { docsData, setDocsData} = location.state || {};
     const { calificationsData, setCalificationsData} = location.state || {};
 
-    const [studentId, setStudentId] = useState("");
+    const [studentId2, setStudentId2] = useState("");
     const [preference1Name, setPreference1Name] = useState(preference1[0].preferencia);
     const [preference2Name, setPreference2Name] = useState(preference2[0].preferencia);
     const [preference3Name, setPreference3Name] = useState(preference3[0].preferencia);
 
+    /*
+      Aqui se crean los evento onChange que graban en tiempo real los cambios del usuario
+      en los campos de preferencias 1, 2 y 3.
+    */
     const handlePreference1NameChange = (event) => {
       setPreference1Name(event.target.value);
     };
@@ -44,11 +47,16 @@ function GetStudentEdit() {
     const handlePreference3NameChange = (event) => {
       setPreference3Name(event.target.value);
     };
-
+    /*
+      Se constituyen una variable para cada guardar cada preferencia.
+    */
     const [preference1Id, setPreference1Id] = useState("");
     const [preference2Id, setPreference2Id] = useState("");
     const [preference3Id, setPreference3Id] = useState("");
-
+    /*
+      Aqui si el nombre de las variables sufre alteraciones por el usuario
+      hacemos la peticion correspondiente para obtener las ids de preferencias.
+    */
     useEffect(() => {
       const fetchPreferences = async () => {
         await StudentPreferences1Requests(preference1Name);
@@ -59,62 +67,123 @@ function GetStudentEdit() {
       fetchPreferences();
     }, [preference1Name, preference2Name, preference3Name]);
 
-
+    /* Aqui introduzco los datos enviados del anterior componente al nuevo porque el
+       formato de como se evian los atributos cambia y hay que extraerlos para poder 
+       usarlos. 
+       En idioms y docs se guardan los idiomas y documentos que tenga cada ,
+       es tipo array porque pueden haber mas de uno de cada y cada objeto que guarda
+       contiene el ididioma, idioma, idestudiante y titulo y lo mismo con documentos.
+    */
+    const [idioms, setIdioms] = useState(idiomsData || []);
+    const [docs, setDocs] = useState(docsData || []);
+    /*
+      Almacenaran el valor de cada atributo antes de ser setteados.
+    */
     //ATRIBUTOS DE IDIOM
     const [idiomId, setIdiomId] = useState("");
-    const [studentIdiom, setStudentIdiom] = useState("");
+    const [studentIdiom, setStudentIdiom] = useState(idioms[0].idioma); // = idioms.idioma
     const [degree, setDegree] = useState("");
 
     //ATRIBUTOS DE DOCS
-    const [docsId, setDocsId] = useState("");
+    const [docId, setDocsId] = useState("");
     const [studentDoc, setStudentDoc] = useState("");
     const [URL, setURL] = useState("");
-
-
-    const [idioms, setIdioms] = useState(idiomsData || []);
-    const [docs, setDocs] = useState(docsData || []);
-
-
+    
+    // Para ver el contenido de los arrays.
     idioms.forEach(idiom => {
-      console.log(idiom); // Aquí puedes acceder a las propiedades de cada objeto
+      console.log(idiom.ididioma); // Aquí puedes acceder a las propiedades de cada objeto
     });
 
     docs.forEach(idiom => {
       console.log(idiom); // Aquí puedes acceder a las propiedades de cada objeto
     });
 
-    
-
-
-    // Evento onChange para grado de dominio del idioma
+    /* 
+      Aqui constituyo los eventos onChange que permiten guardar en tiempo real el valor de 
+      cada atributo por cada documento o idioma que contenga el usuario.
+      La idea es que creas un array temporal y copias el original, extraes el atributo que necesitas
+      alterado por el usuario en tiempo real y lo grabas en la copia creada, despues guardas la 
+      copia con el nuevo atributo modificado por el usuario en el array original.
+      Nota: Para el caso del idioma, aprovecho para recoger el contenido de idioma por si el usuario
+      lo ha modificado, de esta forma sabre el nuevo idioma y podre buscar su ididioma correspondiente
+      en el array idioms, buscando el idioma que coincida con este.
+    */
     const handleStudentIdiomChange = (event, idiomIndex) => {
+      // Obtener una copia del array idioms
       const newIdiomsData = [...idioms];
+      // Actualizar el idioma en el objeto correspondiente dentro del array
       newIdiomsData[idiomIndex].idioma = event.target.value;
+      // Actualizar el estado del array idioms
       setIdioms(newIdiomsData);
+      // Actualizar el estado de studentIdiom con el idioma seleccionado por el usuario
+      setStudentIdiom(event.target.value);
     };
 
-    // Evento onChange para el grado
     const handleDegreeChange = (event, idiomIndex) => {
       const newIdiomsData = [...idioms];
       newIdiomsData[idiomIndex].titulo = event.target.value;
       setIdioms(newIdiomsData);
     };
 
-    // Evento onChange para los documentos del estudiante
     const handleStudentDocChange = (event, docIndex) => {
       const newDocsData = [...docs];
       newDocsData[docIndex].docalum = event.target.value;
       setDocs(newDocsData);
     };
 
-    // Evento onChange para la URL
     const handleURLChange = (event, docIndex) => {
       const newDocsData = [...docs];
       newDocsData[docIndex].url = event.target.value;
       setDocs(newDocsData);
     };
 
+    /*
+      Si el usuario escribe otro idioma al de la caja, obtengo en tiempo real 
+      el ididioma que le corresponde a este.
+    */
+    useEffect(() => {
+      if (studentIdiom) {
+        GetIdiomIdByIdiom(studentIdiom);
+      }
+    }, [studentIdiom]);
 
+    /*
+      Peticion para obtener el ididioma de un idioma.
+      Nota: Contiene un bucle que recorre el array idioms y que busca
+            obtener el indice al que corresponde el idioma para saber
+            donde grabar el ididioma que le corresponde, esto es por 
+            si hubiera un aluno que hable mas de un idioma, para poder
+            saber donde guardar el ididioma que le corresponde el la 
+            BBDD.
+    */
+    const GetIdiomIdByIdiom = async (studentIdiom) => {
+      try {
+          const bodyParameters = {
+          'idioma': studentIdiom
+          };
+          const options = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyParameters)
+          };
+          const response = await fetch("/getIdiomIdByIdiom", options);
+          if (!response.ok) {
+          throw new Error('Error en la solicitud');
+          }
+          const jsonResponse = await response.json();
+          console.log("VALOR: " + jsonResponse[0].ididioma);
+          
+          for (let i = 0; i < idioms.length; i++) {
+            if (studentIdiom === idioms[i].idioma){
+              idioms[i].ididioma = jsonResponse[0].ididioma
+            }
+          }
+
+          setIdiomId (jsonResponse[0].ididioma);
+      } catch (error) {
+          console.error('Error:', error.message);
+      }
+   };
 
 
     //ATRIBUTOS DE ALUMNO
@@ -153,7 +222,7 @@ function GetStudentEdit() {
     const [observations2, setObservations2] = useState("");
     
     /*
-    Solicitamos la peticion para que nos devuela los datos del / los alumnos
+    Solicitamos la peticion para que nos devuela los datos del los alumnos
     que coincidan en su nombre con lo solicitado por el usuario.
     */
     const StudentPreferences1Requests = async (preference1Name) => {
@@ -178,7 +247,7 @@ function GetStudentEdit() {
    };
 
    /*
-    Solicitamos la peticion para que nos devuela los datos del / los alumnos
+    Solicitamos la peticion para que nos devuela los datos del los alumnos
     que coincidan en su nombre con lo solicitado por el usuario.
     */
     const StudentPreferences2Requests = async (preference2Name) => {
@@ -203,7 +272,7 @@ function GetStudentEdit() {
    };
 
    /*
-    Solicitamos la peticion para que nos devuela los datos del / los alumnos
+    Solicitamos la peticion para que nos devuela los datos del los alumnos
     que coincidan en su nombre con lo solicitado por el usuario.
     */
     const StudentPreferences3Requests = async (preference3Name) => {
@@ -230,9 +299,9 @@ function GetStudentEdit() {
 
    // ------------------------------------------- UP DATES ! ---------------------
 
-   /*
-    Solicitamos la peticion para que nos devuela los datos del / los alumnos
-    que coincidan en su nombre con lo solicitado por el usuario.
+    /*
+      Aqui guardamos los datos que corresponden al alumno, incluidas las id,s de las preferencias,
+      puesto que no grabamos la preferencia como tal.
     */
     const UpdateStudent = async (
       name, gender, DNI, birthdate, preference1Id, preference2Id, preference3Id, date, curriculumStatus, admissionStatus, studiesEmail,
@@ -291,7 +360,7 @@ function GetStudentEdit() {
     };
 
       /*
-      
+        Peticion para grabar los datos de la valoracion del estudiante.
       */
     const UpdateStudent_Calification = async (studentId, averageGrade, idiomGrade, maturityGrade, competentGrade, failuresNumber, failuresGrade, globalGrade, observations2) => {
       try {
@@ -327,9 +396,10 @@ function GetStudentEdit() {
     }
 
     /* 
-      PRÓXIMANENTE
-  */
+      Peticion para grabar el idioma y el titulo del estudiante.
+   */
   const UpdateStudent_Idiom = async (studentId, idiomId, degree) => {
+    console.log("VALOR DE IDIOM ID DENTRO DEL UPDATE: " + idiomId);
     try {
       const bodyParameters = {
         'idalumno': studentId,
@@ -357,14 +427,15 @@ function GetStudentEdit() {
     }
   }
   /* 
-      PRÓXIMANENTE
+      Peticion para grabar el documento, la url y el estudiante a quien corresponde.
   */
-  const UpdateStudent_Doc = async (studentId, studentDoc, URL) => {
+  const UpdateStudent_Doc = async (studentId, studentDoc, URL, docId) => {
     try {
       const bodyParameters = {
         'docalum': studentDoc,
         'url': URL,
-        'idalumno': studentId
+        'idalumno': studentId,
+        'iddocalumno':docId
       }
 
       const options = {
@@ -386,7 +457,6 @@ function GetStudentEdit() {
       console.error('Error:', error.message);
     }
   }
-
 
     /*
       Actualizamos datos si existen, primero verificamos si hay datos 
@@ -449,11 +519,25 @@ function GetStudentEdit() {
     }, [calificationsData]);
 
     /*
-      Al pulsar el boton de editar el usuario, lo redirije al componente
-      studentEdit para poder editar cada campo.
-      Tambien envia a este todos los datos necesarios para poder editarlos.
+      Al pulsar el boton de guardar el usuario,grabamos todos los atributos en sus respectivas trablas
+      solicitando las peticiones necesarias, en el caso de idiomas y documentos, como pueden haber varios
+      de cada tipo por alumno, se guardan uno a uno en cada iteraccion mediante un bucle segun los que 
+      tengan.
     */
       const ButtonClickSaveStudent = async () => {
+          // Iterar sobre el array idioms
+        for (let i = 0; i < idioms.length; i++) {
+          const idiom = idioms[i];
+          const { idalumno, ididioma, titulo } = idiom; // Desestructura los atributos del objeto idiom
+          await UpdateStudent_Idiom(idalumno, ididioma, titulo);
+        }
+
+        // Iterar sobre el array docs
+        for (let i = 0; i < docs.length; i++) {
+            const doc = docs[i];
+            const { idalumno, docalum, url, iddocalumno } = doc; // Desestructura los atributos del objeto doc
+            await UpdateStudent_Doc(idalumno, docalum, url, iddocalumno);
+        }
         // Actualizaciones de datos principales
         await UpdateStudent(
             name, gender, DNI, birthdate, preference1Id, preference2Id, preference3Id, date, curriculumStatus, admissionStatus, studiesEmail,
@@ -463,24 +547,6 @@ function GetStudentEdit() {
         await UpdateStudent_Calification(
             studentId, averageGrade, idiomGrade, maturityGrade, competentGrade, failuresNumber, failuresGrade, globalGrade, observations2
         );
-        for (let i = 0; i < idioms.length; i++) {
-          const idiom = idioms[i];
-          const { idalumno, ididioma, titulo } = idiom; // Desestructura los atributos del objeto idiom
-          setStudentId(idalumno);
-          setIdiomId(ididioma);
-          setDegree(titulo);
-          await UpdateStudent_Idiom(studentId, idiomId, degree);
-      }
-      
-      // Iterar sobre el array docs
-      for (let i = 0; i < docs.length; i++) {
-          const doc = docs[i];
-          const { idalumno, docalum, url } = doc; // Desestructura los atributos del objeto doc
-          setStudentId(idalumno);
-          setStudentDoc(docalum);
-          setURL(url);
-          await UpdateStudent_Doc(studentId, studentDoc, URL);
-      }
     }
 
   //Renderizamos
